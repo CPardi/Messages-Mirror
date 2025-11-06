@@ -113,7 +113,7 @@ android {
         )
     }
 
-    namespace = project.property("APP_ID").toString()
+    namespace = project.property("BASE_APP_ID").toString()
 
     lint {
         checkReleaseBuilds = false
