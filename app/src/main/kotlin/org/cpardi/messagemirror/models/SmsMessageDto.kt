@@ -15,7 +15,7 @@ sealed class EventDto {
 
     /** Represents when an SMS message is send by a Mirror */
     @Serializable
-    data class SmsSend(val addresses: Array<String>, val subject: String, val status: Int, val body: String, val date: Long) : EventDto()
+    data class SmsSend(val addresses: List<String>, val subject: String, val status: Int, val body: String, val date: Long) : EventDto()
 
     companion object {
         /** Enables polymorphic serialisation for this class */
@@ -26,8 +26,8 @@ sealed class EventDto {
                         subclass(SmsReceive::class)
                         subclass(SmsSend::class)
                     }
-                };
-                classDiscriminator = "type";
+                }
+                classDiscriminator = "type"
                 ignoreUnknownKeys = true
             }
     }
