@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:id="@+id/mirror_settings_root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Section label -->
+        <TextView
+            android:id="@+id/mirror_settings_section_label"
+            style="@style/SettingsSectionLabelStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/mirror" />
+
+        <RelativeLayout
+            android:id="@+id/mirror_settings_enable_holder"
+            style="@style/SettingsHolderSwitchStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <org.fossify.commons.views.MyMaterialSwitch
+                android:id="@+id/mirror_settings_enable"
+                style="@style/SettingsSwitchStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/enable_mirror" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/mirror_settings_controls_holder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/mirror_settings_ntfy_warning"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/ntfy_warning"
+                android:textColor="@color/design_default_color_primary"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:visibility="gone"
+                android:textAppearance="?attr/textAppearanceBody2" />
+
+            <!-- Mode setting -->
+            <RelativeLayout
+                android:id="@+id/mirror_settings_mode_holder"
+                style="@style/SettingsHolderTextViewStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <org.fossify.commons.views.MyTextView
+                    android:id="@+id/mirror_settings_mode_label"
+                    style="@style/SettingsTextLabelStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/device_mode" />
+
+                <org.fossify.commons.views.MyTextView
+                    android:id="@+id/mirror_settings_mode"
+                    style="@style/SettingsTextValueStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/mirror_settings_mode_label" />
+            </RelativeLayout>
+
+            <!-- Topic setting with Generate and Copy buttons -->
+            <RelativeLayout
+                android:id="@+id/mirror_settings_topic_holder"
+                style="@style/SettingsHolderTextViewOneLinerStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:gravity="center_vertical">
+
+                <org.fossify.commons.views.MyTextView
+                    android:id="@+id/mirror_settings_topic_label"
+                    style="@style/SettingsTextLabelStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/topic" />
+
+                <org.fossify.commons.views.MyEditText
+                    android:id="@+id/mirror_settings_topic_edittext"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/mirror_settings_topic_label"
+                    android:layout_toStartOf="@id/mirror_settings_generate_button"
+                    android:layout_marginStart="26dp"
+                    android:layout_marginEnd="8dp"
+                    android:inputType="textUri"
+                    android:singleLine="true"
+                    android:imeOptions="actionDone"
+                    android:gravity="end|center_vertical"
+                    android:hint="@string/example_topic" />
+
+                <ImageButton
+                    android:id="@+id/mirror_settings_generate_button"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/generate_random_topic"
+                    android:padding="8dp"
+                    android:src="@drawable/baseline_autorenew_24" />
+
+                <ImageButton
+                    android:id="@+id/mirror_settings_copy_button"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/copy_topic_to_clipboard"
+                    android:padding="8dp"
+                    android:src="@drawable/baseline_content_copy_24" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/mirror_settings_key_holder"
+                style="@style/SettingsHolderTextViewOneLinerStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:gravity="center_vertical">
+
+                <org.fossify.commons.views.MyTextView
+                    android:id="@+id/mirror_settings_key_label"
+                    style="@style/SettingsTextLabelStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/encryption_key" />
+
+                <org.fossify.commons.views.MyEditText
+                    android:id="@+id/mirror_settings_key_edittext"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/mirror_settings_key_label"
+                    android:layout_toStartOf="@id/mirror_settings_generate_key_button"
+                    android:layout_marginStart="26dp"
+                    android:layout_marginEnd="8dp"
+                    android:inputType="textUri"
+                    android:singleLine="true"
+                    android:imeOptions="actionDone"
+                    android:gravity="end|center_vertical" />
+
+                <ImageButton
+                    android:id="@+id/mirror_settings_generate_key_button"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/generate_random_key"
+                    android:padding="8dp"
+                    android:src="@drawable/baseline_autorenew_24" />
+
+                <ImageButton
+                    android:id="@+id/mirror_settings_copy_key_button"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/copy_key_to_clipboard"
+                    android:padding="8dp"
+                    android:src="@drawable/baseline_content_copy_24" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/mirror_settings_share_holder"
+                style="@style/SettingsHolderTextViewOneLinerStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <org.fossify.commons.views.MyTextView
+                    android:id="@+id/mirror_settings_share_button"
+                    style="@style/SettingsTextLabelStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/share_settings" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/mirror_settings_scan_holder"
+            style="@style/SettingsHolderTextViewOneLinerStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <org.fossify.commons.views.MyTextView
+                android:id="@+id/mirror_settings_scan_button"
+                style="@style/SettingsTextLabelStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/scan_settings" />
+        </RelativeLayout>
+    </LinearLayout>
+</merge>

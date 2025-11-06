@@ -149,6 +149,7 @@ dependencies {
     implementation(libs.ez.vcard)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.bundles.room)
+    implementation(libs.zxing)
     ksp(libs.androidx.room.compiler)
     detektPlugins(libs.compose.detekt)
 }

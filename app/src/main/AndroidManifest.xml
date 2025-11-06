@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:installLocation="auto">
+    android:installLocation="auto" >
 
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.WRITE_SMS" />
@@ -24,6 +24,7 @@
     <queries>
         <package android:name="org.fossify.contacts.debug" />
         <package android:name="org.fossify.contacts" />
+        <package android:name="io.heckel.ntfy" />
     </queries>
 
     <uses-feature android:name="android.hardware.telephony" />
@@ -35,7 +36,11 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_launcher_name"
         android:roundIcon="@mipmap/ic_launcher"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme" >
+
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            tools:remove="screenOrientation"  />
 
         <activity
             android:name=".activities.SplashActivity"
@@ -73,7 +78,7 @@
             android:name=".activities.NewConversationActivity"
             android:configChanges="orientation"
             android:exported="true"
-            android:parentActivityName=".activities.MainActivity">
+            android:parentActivityName=".activities.MainActivity" >
 
             <intent-filter>
                 <action android:name="android.intent.action.SENDTO" />
@@ -108,7 +113,7 @@
             android:configChanges="orientation"
             android:exported="true"
             android:label="@string/settings"
-            android:parentActivityName=".activities.MainActivity">
+            android:parentActivityName=".activities.MainActivity" >
 
             <intent-filter>
                 <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
@@ -162,7 +167,7 @@
         <service
             android:name=".services.HeadlessSmsSendService"
             android:exported="true"
-            android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE">
+            android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE" >
             <intent-filter>
                 <action android:name="android.intent.action.RESPOND_VIA_MESSAGE" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -180,10 +185,12 @@
 
         <receiver android:name=".receivers.SmsStatusDeliveredReceiver" />
 
+        <service android:name="org.cpardi.messagemirror.services.NtfySmsReceiverService" />
+
         <receiver
-            android:name=".receivers.SmsReceiver"
+            android:name="org.cpardi.messagemirror.ForwardingSmsReceiver"
             android:exported="true"
-            android:permission="android.permission.BROADCAST_SMS">
+            android:permission="android.permission.BROADCAST_SMS" >
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_DELIVER" />
             </intent-filter>
@@ -192,7 +199,7 @@
         <receiver
             android:name="com.android.mms.transaction.PushReceiver"
             android:exported="true"
-            android:permission="android.permission.BROADCAST_WAP_PUSH">
+            android:permission="android.permission.BROADCAST_WAP_PUSH" >
             <intent-filter>
                 <action android:name="android.provider.Telephony.WAP_PUSH_DELIVER" />
 
@@ -214,7 +221,7 @@
         <receiver
             android:name=".receivers.MarkAsReadReceiver"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="org.fossify.messages.action.mark_as_read" />
             </intent-filter>
@@ -223,7 +230,7 @@
         <receiver
             android:name=".receivers.DirectReplyReceiver"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="org.fossify.messages.action.reply" />
             </intent-filter>
@@ -232,7 +239,7 @@
         <receiver
             android:name=".receivers.DeleteSmsReceiver"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="org.fossify.messages.action.delete" />
             </intent-filter>
@@ -246,7 +253,7 @@
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
             android:exported="false"
-            android:grantUriPermissions="true">
+            android:grantUriPermissions="true" >
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
