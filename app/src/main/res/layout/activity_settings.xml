@@ -459,7 +459,7 @@
                 android:id="@+id/settings_message_mirror_divider"
                 layout="@layout/divider" />
 
-            <org.cpardi.messagemirror.MirrorSettings
+            <org.cpardi.messagemirror.activities.MirrorSettings
                 android:id="@+id/mirror_settings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"  />

@@ -1,4 +1,4 @@
-package org.cpardi.messagemirror
+package org.cpardi.messagemirror.helpers
 
 import android.util.Base64
 import java.nio.charset.Charset

@@ -188,7 +188,7 @@
         <service android:name="org.cpardi.messagemirror.services.NtfySmsReceiverService" />
 
         <receiver
-            android:name="org.cpardi.messagemirror.ForwardingSmsReceiver"
+            android:name="org.cpardi.messagemirror.receivers.ForwardingSmsReceiver"
             android:exported="true"
             android:permission="android.permission.BROADCAST_SMS" >
             <intent-filter>

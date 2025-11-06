@@ -1,4 +1,4 @@
-package org.cpardi.messagemirror
+package org.cpardi.messagemirror.activities
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -16,6 +16,9 @@ import androidx.core.view.isVisible
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
+import org.cpardi.messagemirror.helpers.CryptoHelper
+import org.cpardi.messagemirror.dialogs.ShareMirrorSettingsDialog
+import org.cpardi.messagemirror.receivers.ForwardingSmsReceiver
 import org.fossify.commons.compose.extensions.getActivity
 import org.fossify.commons.dialogs.RadioGroupDialog
 import org.fossify.commons.extensions.isPackageInstalled

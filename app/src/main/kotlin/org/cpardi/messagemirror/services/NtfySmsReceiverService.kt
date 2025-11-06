@@ -9,10 +9,10 @@ import android.os.IBinder
 import android.provider.Telephony
 import android.util.Base64
 import androidx.core.content.ContextCompat
-import org.cpardi.messagemirror.CryptoHelper
-import org.cpardi.messagemirror.EventDto
-import org.cpardi.messagemirror.ForwardingSmsReceiver
-import org.cpardi.messagemirror.MirrorSettings
+import org.cpardi.messagemirror.helpers.CryptoHelper
+import org.cpardi.messagemirror.models.EventDto
+import org.cpardi.messagemirror.receivers.ForwardingSmsReceiver
+import org.cpardi.messagemirror.activities.MirrorSettings
 import org.fossify.commons.extensions.baseConfig
 import org.fossify.commons.extensions.getMyContactsCursor
 import org.fossify.commons.extensions.showErrorToast

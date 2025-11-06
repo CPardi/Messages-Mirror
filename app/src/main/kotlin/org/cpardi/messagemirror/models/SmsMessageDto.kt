@@ -1,4 +1,4 @@
-package org.cpardi.messagemirror
+package org.cpardi.messagemirror.models
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
