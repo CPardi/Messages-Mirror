@@ -22,7 +22,7 @@ phone number on the device you carry.
 - Easy setup and sharing: Configure Device Mode (Host or Mirror), Topic, and Encryption Key and share
   or import settings via QR code.
 
-![](graphics/featureMirrorGraphic2.png)
+![](graphics/featureMirrorGraphic.png)
 
 ## Requirements
 
