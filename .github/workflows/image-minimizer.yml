@@ -9,6 +9,23 @@ on:
     types: [opened, edited]
 
 jobs:
+  validate-app-secrets:
+    steps:
+      - name: Validate APP_ID and APP_PRIVATE_KEY presence
+        run: |
+          if [ -z "${{ secrets.APP_ID }}" ]; then
+            echo "ERROR: APP_ID repository secret is not set or not available to this workflow."
+            exit 1
+          fi
+          if [ -z "${{ secrets.APP_PRIVATE_KEY }}" ]; then
+            echo "ERROR: APP_PRIVATE_KEY repository secret is not set or not available to this workflow."
+            exit 1
+          fi
+          echo "APP_ID and APP_PRIVATE_KEY are present."
+
   call-image-minimizer-workflow:
+    needs: validate-app-secrets
     uses: FossifyOrg/.github/.github/workflows/image-minimizer.yml@main
-    secrets: inherit
+    secrets:
+      APP_ID: ${{ secrets.APP_ID }}
+      APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
