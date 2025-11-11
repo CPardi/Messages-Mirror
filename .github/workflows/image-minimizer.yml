@@ -9,6 +9,18 @@ on:
     types: [opened, edited]
 
 jobs:
+  debug-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug Secret Lengths
+        run: |
+          echo "Length of APP_ID: ${#APP_ID}"
+          echo "Length of APP_PRIVATE_KEY: ${#APP_PRIVATE_KEY}"
+        env:
+          APP_ID: ${{ secrets.APP_ID }}
+          APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
   call-image-minimizer-workflow:
     uses: FossifyOrg/.github/.github/workflows/image-minimizer.yml@main
-    secrets: inherit
+    secrets:
+      APP_ID: ${{ secrets.APP_ID }}
+      APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
