@@ -71,13 +71,14 @@ import org.fossify.messages.models.Conversation
 import org.fossify.messages.models.Events
 import org.fossify.messages.models.Message
 import org.fossify.messages.models.SearchResult
+import org.cpardi.messagemirror.services.NtfySmsReceiverService
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 
 class MainActivity : SimpleActivity() {
     override var isSearchBarEnabled = true
-    
+
     private val MAKE_DEFAULT_APP_REQUEST = 1
 
     private var storedTextColor = 0
@@ -285,6 +286,13 @@ class MainActivity : SimpleActivity() {
         binding.conversationsFab.setOnClickListener {
             launchNewConversation()
         }
+
+        startNtfySmsService()
+    }
+
+    private fun startNtfySmsService() {
+        val intent = Intent(this, NtfySmsReceiverService::class.java)
+        startService(intent)
     }
 
     private fun getCachedConversations() {

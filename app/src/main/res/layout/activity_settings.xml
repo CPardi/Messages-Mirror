@@ -456,6 +456,15 @@
             </RelativeLayout>
 
             <include
+                android:id="@+id/settings_message_mirror_divider"
+                layout="@layout/divider" />
+
+            <org.cpardi.messagemirror.views.MirrorSettingsView
+                android:id="@+id/mirror_settings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"  />
+
+            <include
                 android:id="@+id/settings_migrating_divider"
                 layout="@layout/divider" />
 
