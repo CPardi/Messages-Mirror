@@ -1,13 +1,19 @@
 package org.cpardi.messagemirror.services
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ServiceInfo
+import android.os.Build
 import android.os.IBinder
 import android.provider.Telephony
 import android.util.Base64
+import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import org.cpardi.messagemirror.helpers.CryptoHelper
 import org.cpardi.messagemirror.models.EventDto
@@ -21,6 +27,7 @@ import org.fossify.commons.helpers.ensureBackgroundThread
 import org.fossify.messages.extensions.getThreadId
 import org.fossify.messages.receivers.SmsReceiver
 import javax.crypto.spec.SecretKeySpec
+
 
 class NtfySmsReceiverService : Service() {
 
@@ -107,6 +114,19 @@ class NtfySmsReceiverService : Service() {
         super.onCreate()
         val filter = IntentFilter(NTFY_RECEIVE_MESSAGE_ACTION)
         ContextCompat.registerReceiver(this, messageReceiver, filter, ContextCompat.RECEIVER_EXPORTED)
+
+        val notification = NotificationCompat.Builder(this, "ntfy")
+            .setContentTitle("Messages Mirror Service")
+            .setSmallIcon(org.fossify.commons.R.drawable.ic_cross_vector)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .build()
+
+        val channel = NotificationChannel("messagesMirror", "MessageMirrorChannel", NotificationManager.IMPORTANCE_DEFAULT)
+        getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+
+        val id = 1
+        val foregroundServiceType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC else 0
+        ServiceCompat.startForeground(this, id, notification, foregroundServiceType)
     }
 
     override fun onDestroy() {
