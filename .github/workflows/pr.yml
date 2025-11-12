@@ -1,9 +1,9 @@
 name: PR
 
 on:
-    pull_request:
-        branches: [ main ]
+  pull_request:
+    branches: [ main, feature/_main-message-mirror ]
 
 jobs:
-    call-pr-workflow:
-        uses: FossifyOrg/.github/.github/workflows/pr.yml@main
+  call-pr-workflow:
+    uses: FossifyOrg/.github/.github/workflows/pr.yml@main
