@@ -33,7 +33,7 @@ android {
         targetSdk = project.libs.versions.app.build.targetSDK.get().toInt()
         versionName = project.property("VERSION_NAME").toString()
         versionCode = project.property("VERSION_CODE").toString().toInt()
-        setProperty("archivesBaseName", "messages-$versionCode")
+        setProperty("archivesBaseName", "messagesmirror-$versionCode")
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")
         }
@@ -113,7 +113,7 @@ android {
         )
     }
 
-    namespace = project.property("APP_ID").toString()
+    namespace = project.property("BASE_APP_ID").toString()
 
     lint {
         checkReleaseBuilds = false
