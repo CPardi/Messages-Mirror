@@ -1,4 +1,4 @@
-package org.cpardi.messagemirror.activities
+package org.cpardi.messagemirror.views
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -27,7 +27,7 @@ import org.fossify.messages.databinding.ViewMirrorSettingsBinding
 import org.fossify.messages.extensions.toArrayList
 import java.security.SecureRandom
 
-class MirrorSettings @JvmOverloads constructor(
+class MirrorSettingsView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -112,18 +112,19 @@ class MirrorSettings @JvmOverloads constructor(
         mirrorSettingsTopicEdittext.setText(prefs.getString(TOPIC_NAME, "") ?: "")
 
         mirrorSettingsTopicEdittext.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { // This is intentionally empty
+            }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 editPrefs.putString(TOPIC_NAME, s?.toString() ?: "").apply()
             }
-
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) { // This is intentionally empty
+            }
         })
     }
 
     private fun setupGenerateTopic() = binding.apply {
         mirrorSettingsGenerateButton.setOnClickListener {
-            val randomPassword = generateRandomPassword(16)
+            val randomPassword = generateRandomPassword(length = 16)
             mirrorSettingsTopicEdittext.setText(randomPassword)
         }
     }
@@ -142,12 +143,13 @@ class MirrorSettings @JvmOverloads constructor(
         mirrorSettingsKeyEdittext.setText(prefs.getString(ENCRYPTION_KEY_NAME, "") ?: "")
 
         mirrorSettingsKeyEdittext.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { // This is intentionally empty
+            }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 editPrefs.putString(ENCRYPTION_KEY_NAME, s?.toString() ?: "").apply()
             }
-
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) { // This is intentionally empty
+            }
         })
     }
 

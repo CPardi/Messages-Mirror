@@ -8,10 +8,13 @@ import com.google.zxing.MultiFormatWriter
 import com.google.zxing.common.BitMatrix
 import com.journeyapps.barcodescanner.BarcodeEncoder
 
+private const val WIDTH: Int = 400
+private const val HEIGHT = 400
+
 class ShareMirrorSettingsDialog(activity: Context, text: String) {
     init {
         val multiFormatWriter = MultiFormatWriter()
-        val bitMatrix: BitMatrix = multiFormatWriter.encode(text, BarcodeFormat.QR_CODE, 400, 400)
+        val bitMatrix: BitMatrix = multiFormatWriter.encode(text, BarcodeFormat.QR_CODE, WIDTH, HEIGHT)
         val barcodeEncoder = BarcodeEncoder()
         val qrBitmap = barcodeEncoder.createBitmap(bitMatrix)
 

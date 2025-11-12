@@ -23,7 +23,7 @@ object CryptoHelper {
 
     fun encrypt(plainText: String, key: SecretKeySpec): String {
         val cipher = Cipher.getInstance(TRANSFORMATION)
-        val iv = ByteArray(16)
+        val iv = ByteArray(size = 16)
         secureRandom.nextBytes(iv)
         val ivSpec = IvParameterSpec(iv)
         cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec)
@@ -35,8 +35,8 @@ object CryptoHelper {
 
     fun decrypt(encryptedBase64: String, key: SecretKeySpec): String {
         val combined = Base64.decode(encryptedBase64, Base64.NO_WRAP)
-        val iv = combined.copyOfRange(0, 16)
-        val encrypted = combined.copyOfRange(16, combined.size)
+        val iv = combined.copyOfRange(fromIndex = 0, toIndex = 16)
+        val encrypted = combined.copyOfRange(fromIndex =  16, toIndex = combined.size)
         val cipher = Cipher.getInstance(TRANSFORMATION)
         val ivSpec = IvParameterSpec(iv)
         cipher.init(Cipher.DECRYPT_MODE, key, ivSpec)

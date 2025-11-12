@@ -12,7 +12,7 @@ import androidx.core.content.ContextCompat
 import org.cpardi.messagemirror.helpers.CryptoHelper
 import org.cpardi.messagemirror.models.EventDto
 import org.cpardi.messagemirror.receivers.ForwardingSmsReceiver
-import org.cpardi.messagemirror.activities.MirrorSettings
+import org.cpardi.messagemirror.views.MirrorSettingsView
 import org.fossify.commons.extensions.baseConfig
 import org.fossify.commons.extensions.getMyContactsCursor
 import org.fossify.commons.extensions.showErrorToast
@@ -30,16 +30,16 @@ class NtfySmsReceiverService : Service() {
 
     private val messageReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val prefs = context.getSharedPreferences(MirrorSettings.Companion.SETTINGS_NAME, MODE_PRIVATE)
-            val isEnabled = prefs.getBoolean(MirrorSettings.Companion.ENABLE_NAME, false)
-            val mode = MirrorSettings.DeviceMode.fromInt(prefs.getInt(MirrorSettings.Companion.MODE_NAME, MirrorSettings.DeviceMode.SmsHost.value))
-            val subscribedTopic = prefs.getString(MirrorSettings.Companion.TOPIC_NAME, "")
+            val prefs = context.getSharedPreferences(MirrorSettingsView.Companion.SETTINGS_NAME, MODE_PRIVATE)
+            val isEnabled = prefs.getBoolean(MirrorSettingsView.Companion.ENABLE_NAME, false)
+            val mode = MirrorSettingsView.DeviceMode.fromInt(prefs.getInt(MirrorSettingsView.Companion.MODE_NAME, MirrorSettingsView.DeviceMode.SmsHost.value))
+            val subscribedTopic = prefs.getString(MirrorSettingsView.Companion.TOPIC_NAME, "")
             val topic = intent.getStringExtra(ForwardingSmsReceiver.Companion.NTFY_TOPIC)
 
-            if (!isEnabled || mode != MirrorSettings.DeviceMode.Mirror || topic != subscribedTopic)
+            if (!isEnabled || mode != MirrorSettingsView.DeviceMode.Mirror || topic != subscribedTopic)
                 return
 
-            val keyBase64 = prefs.getString(MirrorSettings.Companion.ENCRYPTION_KEY_NAME, null)
+            val keyBase64 = prefs.getString(MirrorSettingsView.Companion.ENCRYPTION_KEY_NAME, null)
             val keyBytes = Base64.decode(keyBase64, Base64.NO_WRAP)
             val key = SecretKeySpec(keyBytes, CryptoHelper.ALGORITHM)
 
