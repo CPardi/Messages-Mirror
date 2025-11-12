@@ -36,13 +36,7 @@ class MirrorSettingsView @JvmOverloads constructor(
     private val binding = ViewMirrorSettingsBinding.inflate(LayoutInflater.from(context), this)
     private val prefs: SharedPreferences = context.getSharedPreferences(SETTINGS_NAME, Context.MODE_PRIVATE)
     private val editPrefs: SharedPreferences.Editor = prefs.edit()
-    private val barcodeLauncher =
-        (context as? ComponentActivity)?.registerForActivityResult(ScanContract()) { result ->
-            handleBarcodeContent(
-                result,
-                context
-            )
-        }
+    private val barcodeLauncher = (context as? ComponentActivity)?.registerForActivityResult(ScanContract()) { result -> handleBarcodeContent(result, context) }
 
     companion object {
         const val SETTINGS_NAME = "mirror_settings"
@@ -210,7 +204,7 @@ class MirrorSettingsView @JvmOverloads constructor(
         }
 
         binding.mirrorSettingsTopicEdittext.setText(topicAndKey[0])
-        editPrefs.putString(ENCRYPTION_KEY_NAME, topicAndKey[1]).apply()
+        binding.mirrorSettingsKeyEdittext.setText(topicAndKey[1])
     }
 
     private fun setSettingsEnabled(isEnabled: Boolean) = binding.apply {
