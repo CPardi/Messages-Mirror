@@ -139,6 +139,20 @@
     <string name="faq_3_text">Yes, you can schedule messages to be sent in the future by long pressing the Send button and picking the desired date and time.</string>
     <string name="faq_4_title">Why do my group message replies appear as individual texts to recipients?</string>
     <string name="faq_4_text">You need to enable \"Send group messages as MMS\" in the app settings. This will ensure that group messages are sent as proper MMS, allowing all participants to see each other\'s replies.</string>
+    <!-- Messages Mirror -->
+    <string name="mirror">Mirror</string>
+    <string name="enable_mirror">Enable Mirror</string>
+    <string name="ntfy_warning">Warning: ntfy.sh app is not installed. Please install it from the Play Store.</string>
+    <string name="device_mode">Device Mode</string>
+    <string name="topic">Topic</string>
+    <string name="example_topic">JCCtIRlCnhkr3Tky</string>
+    <string name="generate_random_topic">Generate random topic</string>
+    <string name="copy_topic_to_clipboard">Copy topic to clipboard</string>
+    <string name="encryption_key">Encryption Key</string>
+    <string name="generate_random_key">Generate random key</string>
+    <string name="copy_key_to_clipboard">Copy key to clipboard</string>
+    <string name="share_settings">Share Settings</string>
+    <string name="scan_settings">Scan Settings</string>
     <!--
         Haven't found some strings? There's more at
         https://github.com/FossifyOrg/Commons/tree/master/commons/src/main/res
