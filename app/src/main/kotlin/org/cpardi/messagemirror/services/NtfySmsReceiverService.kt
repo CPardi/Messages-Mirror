@@ -1,13 +1,20 @@
 package org.cpardi.messagemirror.services
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ServiceInfo
+import android.os.Build
 import android.os.IBinder
 import android.provider.Telephony
 import android.util.Base64
+import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import org.cpardi.messagemirror.helpers.CryptoHelper
 import org.cpardi.messagemirror.models.EventDto
@@ -18,9 +25,12 @@ import org.fossify.commons.extensions.getMyContactsCursor
 import org.fossify.commons.extensions.showErrorToast
 import org.fossify.commons.helpers.SimpleContactsHelper
 import org.fossify.commons.helpers.ensureBackgroundThread
+import org.fossify.messages.R
+import org.fossify.messages.activities.MainActivity
 import org.fossify.messages.extensions.getThreadId
 import org.fossify.messages.receivers.SmsReceiver
 import javax.crypto.spec.SecretKeySpec
+
 
 class NtfySmsReceiverService : Service() {
 
@@ -107,6 +117,31 @@ class NtfySmsReceiverService : Service() {
         super.onCreate()
         val filter = IntentFilter(NTFY_RECEIVE_MESSAGE_ACTION)
         ContextCompat.registerReceiver(this, messageReceiver, filter, ContextCompat.RECEIVER_EXPORTED)
+
+        val channelId = "messagesMirror-subscriber"
+        val notificationGroupId = "org.cpardi.messagemirror.NOTIFICATION_GROUP"
+        val pendingIntent: PendingIntent = Intent(this, MainActivity::class.java).let { notificationIntent ->
+            PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
+        }
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setContentTitle("Listening for messages")
+            .setSmallIcon(R.drawable.ic_mirror_vector)
+            .setContentIntent(pendingIntent) // Open Messages Mirror on tap
+            .setSound(null)
+            .setShowWhen(false) // Don't show time
+            .setOngoing(true)
+            .setGroup(notificationGroupId)
+            .build()
+
+
+
+        val channelName = "MessageMirrorChannel"
+        val channel = NotificationChannel(channelId,  channelName, NotificationManager.IMPORTANCE_LOW)
+        getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+
+        val id = 1
+        val foregroundServiceType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC else 0
+        ServiceCompat.startForeground(this, id, notification, foregroundServiceType)
     }
 
     override fun onDestroy() {
