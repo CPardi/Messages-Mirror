@@ -24,6 +24,7 @@ import org.fossify.commons.extensions.getMyContactsCursor
 import org.fossify.commons.extensions.showErrorToast
 import org.fossify.commons.helpers.SimpleContactsHelper
 import org.fossify.commons.helpers.ensureBackgroundThread
+import org.fossify.messages.R
 import org.fossify.messages.extensions.getThreadId
 import org.fossify.messages.receivers.SmsReceiver
 import javax.crypto.spec.SecretKeySpec
@@ -117,8 +118,8 @@ class NtfySmsReceiverService : Service() {
 
         val channelId = "messagesMirror"
         val notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("Messages Mirror Service")
-            .setSmallIcon(org.fossify.messages.R.drawable.ic_mirror_vector)
+            .setContentTitle("Listening for mirrored messages")
+            .setSmallIcon(R.drawable.ic_mirror_vector)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
 
