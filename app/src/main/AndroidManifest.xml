@@ -21,6 +21,9 @@
         android:name="android.permission.USE_BIOMETRIC"
         tools:node="remove" />
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+
     <queries>
         <package android:name="org.fossify.contacts.debug" />
         <package android:name="org.fossify.contacts" />
@@ -185,7 +188,10 @@
 
         <receiver android:name=".receivers.SmsStatusDeliveredReceiver" />
 
-        <service android:name="org.cpardi.messagemirror.services.NtfySmsReceiverService" />
+        <service
+            android:name="org.cpardi.messagemirror.services.NtfySmsReceiverService"
+            android:foregroundServiceType="dataSync"
+            android:permission="android.permission.FOREGROUND_SERVICE"/>
 
         <receiver
             android:name="org.cpardi.messagemirror.receivers.ForwardingSmsReceiver"
