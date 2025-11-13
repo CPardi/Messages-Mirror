@@ -118,7 +118,7 @@ class NtfySmsReceiverService : Service() {
 
         val channelId = "messagesMirror"
         val notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("Listening for mirrored messages")
+            .setContentTitle("Listening for messages")
             .setSmallIcon(R.drawable.ic_mirror_vector)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
