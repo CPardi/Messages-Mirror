@@ -115,13 +115,15 @@ class NtfySmsReceiverService : Service() {
         val filter = IntentFilter(NTFY_RECEIVE_MESSAGE_ACTION)
         ContextCompat.registerReceiver(this, messageReceiver, filter, ContextCompat.RECEIVER_EXPORTED)
 
-        val notification = NotificationCompat.Builder(this, "ntfy")
+        val channelId = "messagesMirror"
+        val notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("Messages Mirror Service")
             .setSmallIcon(org.fossify.commons.R.drawable.ic_cross_vector)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
 
-        val channel = NotificationChannel("messagesMirror", "MessageMirrorChannel", NotificationManager.IMPORTANCE_DEFAULT)
+        val channelName = "MessageMirrorChannel"
+        val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
         getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
 
         val id = 1
