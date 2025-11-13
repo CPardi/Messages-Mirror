@@ -118,7 +118,7 @@ class NtfySmsReceiverService : Service() {
         val channelId = "messagesMirror"
         val notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("Messages Mirror Service")
-            .setSmallIcon(org.fossify.commons.R.drawable.ic_cross_vector)
+            .setSmallIcon(org.fossify.messages.R.drawable.ic_mirror_vector)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
 
