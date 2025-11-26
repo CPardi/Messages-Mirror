@@ -29,6 +29,8 @@ jobs:
 
       - name: Create release branch
         run: |
+          git fetch --tags
+
           git checkout ${{inputs.feature_branch}}
           git checkout -b __test
           git rebase --onto ${{inputs.based_on}} origin/main __test
