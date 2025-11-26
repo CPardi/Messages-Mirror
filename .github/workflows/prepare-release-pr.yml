@@ -31,6 +31,8 @@ jobs:
         run: |
           git remote add upstream https://github.com/FossifyOrg/Messages.git
           git fetch upstream --tags
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
 
           git checkout ${{inputs.feature_branch}}
           git checkout -b __test
