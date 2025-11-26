@@ -1,15 +1,31 @@
 name: Prepare Release PR
 
 on:
-  repository_dispatch:
-    types: [prepare-release]
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "CHANGELOG.md"
+    inputs:
+      based_on:
+        description: "Base branch or tag to base the release on"
+        required: true
+        type: string
 
 jobs:
-  call-release-pr:
-    uses: FossifyOrg/.github/.github/workflows/prepare-release-pr.yml@main
-    secrets: inherit
+  prepare-release-branch:
+    name: Prepare release branch from VERSION_NAME
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # ensure full history for rebase operations
+
+      - name: Show repository files (debug)
+        run: |
+          echo "Listing repository root files for debug"
+          ls -la
+
+      - name: Get next version code
+        id: version-code
+        run: |
+          currentVersionCode=$(grep '^VERSION_NAME=' gradle.properties | cut -d= -f2)
+          nextVersionName=$((currentVersionCode+1))
+          echo "nextVersionName=$nextVersionName" >> $GITHUB_OUTPUT
