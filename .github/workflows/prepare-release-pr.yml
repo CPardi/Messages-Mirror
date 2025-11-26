@@ -31,5 +31,5 @@ jobs:
         run: |
           git checkout ${{inputs.feature_branch}}
           git checkout -b __test
-          git rebase --onto ${{inputs.based_on}} main __test
+          git rebase --onto ${{inputs.based_on}} origin/main __test
           git push origin __test
