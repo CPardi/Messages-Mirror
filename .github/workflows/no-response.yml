@@ -8,6 +8,6 @@ on:
 jobs:
   call-no-response-workflow:
     uses: FossifyOrg/.github/.github/workflows/no-response.yml@main
-    with:
+    secrets:
       app-id: ${{ secrets.APP_ID }}
       private-key: ${{ secrets.APP_PRIVATE_KEY }}
