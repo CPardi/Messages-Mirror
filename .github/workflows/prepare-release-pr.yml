@@ -67,6 +67,6 @@ jobs:
           name: ${{ steps.release-branch.outputs.VERSION_NAME }}
           body: "TODO"
           draft: TRUE
-          files: app/build/outputs/apk/foss/release/*release.apk
+          files: app/build/outputs/apk/foss/release/*release-unsigned.apk
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
