@@ -29,7 +29,7 @@ jobs:
 
       - name: Create release branch
         run: |
-          git checkout ${feature_branch}
+          git checkout ${{inputs.feature_branch}}
           git checkout -b __test
-          git rebase --onto ${based_on} main __test
+          git rebase --onto ${{inputs.based_on}} main __test
           git push origin __test
