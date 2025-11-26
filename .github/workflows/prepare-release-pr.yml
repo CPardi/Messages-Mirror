@@ -22,21 +22,50 @@ jobs:
         with:
           fetch-depth: 0  # ensure full history for rebase operations
 
+      - id: app-token
+        uses: actions/create-github-app-token@7e473efe3cb98aa54f8d4bac15400b15fad77d94
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Set up JDK
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
       - name: Show repository files (debug)
         run: |
           echo "Listing repository root files for debug"
           ls -la
 
       - name: Create release branch
+        id: release-branch
         run: |
           git remote add upstream https://github.com/FossifyOrg/Messages.git
           git fetch upstream --tags
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
 
-          version=$(grep '^VERSION_NAME=' gradle.properties | cut -d= -f2)
-          branchName="$version+based_on=${{inputs.based_on}}"
+          mirrorVersion=$(grep '^VERSION_NAME=' gradle.properties | cut -d= -f2)
+          version="$mirrorVersion+based_on=${{inputs.based_on}}"
+          echo "VERSION_NAME={version}" >> $GITHUB_OUTPUT
+
           git checkout ${{inputs.feature_branch}}
-          git checkout -b $branchName
-          git rebase --onto ${{inputs.based_on}} origin/main $branchName
-          git push origin $branchName
+          git checkout -b $version
+          git rebase --onto ${{inputs.based_on}} origin/main $version
+          git push origin $version
+
+      - name: Build Release APK
+        run: ./gradlew assembleFossRelease -PVERSION_NAME=${{ steps.release-branch.outputs.VERSION_NAME }}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe
+        with:
+          tag_name: ${{ steps.release-branch.outputs.VERSION_NAME }}
+          name: ${{ steps.release-branch.outputs.VERSION_NAME }}
+          body: "TODO"
+          draft: TRUE
+          files: app/build/outputs/apk/foss/release/*release.apk
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
