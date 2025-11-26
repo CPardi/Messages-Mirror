@@ -7,6 +7,10 @@ on:
         description: "Base branch or tag to base the release on"
         required: true
         type: string
+      feature_branch:
+        description: "Branch containing additional features"
+        default: "feature/_main-message-mirror"
+        type: string
 
 jobs:
   prepare-release-branch:
@@ -23,9 +27,8 @@ jobs:
           echo "Listing repository root files for debug"
           ls -la
 
-      - name: Get next version code
-        id: version-code
+      - name: Create release branch
         run: |
-          currentVersionCode=$(grep '^VERSION_NAME=' gradle.properties | cut -d= -f2)
-          nextVersionName=$((currentVersionCode+1))
-          echo "nextVersionName=$nextVersionName" >> $GITHUB_OUTPUT
+          git checkout ${feature_branch}
+          git checkout -b __test
+          git rebase --onto ${based_on} main __test
