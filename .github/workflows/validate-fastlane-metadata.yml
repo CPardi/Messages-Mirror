@@ -2,11 +2,11 @@ name: Fastlane metadata validation
 
 on:
   push:
-    branches: [main]
+    branches: [main, feature/_main-message-mirror]
     paths:
       - "fastlane/**"
   pull_request:
-    branches: [main]
+    branches: [main, feature/_main-message-mirror]
     paths:
       - "fastlane/**"
 
