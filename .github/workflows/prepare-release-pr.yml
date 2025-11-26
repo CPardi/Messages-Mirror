@@ -32,3 +32,4 @@ jobs:
           git checkout ${feature_branch}
           git checkout -b __test
           git rebase --onto ${based_on} main __test
+          git push origin __test
