@@ -34,7 +34,8 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
 
+          branchName="feature/${{inputs.feature_branch}}+based_on=${{inputs.based_on}}"
           git checkout ${{inputs.feature_branch}}
-          git checkout -b __test
-          git rebase --onto ${{inputs.based_on}} origin/main __test
-          git push origin __test
+          git checkout -b $branchName
+          git rebase --onto ${{inputs.based_on}} origin/main $branchName
+          git push origin $branchName
