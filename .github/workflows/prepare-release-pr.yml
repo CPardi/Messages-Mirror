@@ -29,7 +29,7 @@ jobs:
 
       - name: Create release branch
         run: |
-          git fetch --tags
+          git fetch upstream --tags
 
           git checkout ${{inputs.feature_branch}}
           git checkout -b __test
