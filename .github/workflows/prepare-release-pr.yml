@@ -50,7 +50,7 @@ jobs:
 
           mirrorVersion=$(grep '^VERSION_NAME=' gradle.properties | cut -d= -f2)
           version="$mirrorVersion+based_on=${{inputs.based_on}}"
-          echo "VERSION_NAME={version}" >> $GITHUB_OUTPUT
+          echo "VERSION_NAME=$version" >> $GITHUB_OUTPUT
 
           git checkout ${{inputs.feature_branch}}
           git checkout -b $version
@@ -58,7 +58,7 @@ jobs:
           git push origin $version
 
       - name: Build Release APK
-        run: ./gradlew assembleFossRelease -PVERSION_NAME=${{ steps.release-branch.outputs.VERSION_NAME }}"
+        run: ./gradlew assembleFossRelease -PVERSION_NAME="${{ steps.release-branch.outputs.VERSION_NAME }}"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe
