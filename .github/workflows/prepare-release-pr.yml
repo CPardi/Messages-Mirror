@@ -121,6 +121,8 @@ jobs:
             /^## .*\\n## /i $changelog
           }" CHANGELOG.md
           
+          rm -f CHANGELOG.md.bak
+          
           git add CHANGELOG.md
           git commit -m "Update CHANGELOG for $VERSION_NAME"
           git push origin "release/$VERSION_NAME"
@@ -153,6 +155,4 @@ jobs:
         if: failure()
         run: |
           git fetch origin
-          git push origin --delete "release/$VERSION_NAME"
-        env:
-          VERSION_NAME: ${{ steps.release-branch.outputs.VERSION_NAME }}
+          git push origin --delete "release/${{ steps.release-branch.outputs.VERSION_NAME }}"
