@@ -116,6 +116,9 @@ jobs:
           
           # Write accumulated changelog text to CHANGELOG.md
           echo -e "$changelog_text" >> CHANGELOG.md
+          git add CHANGELOG.md
+          git commit -m "Update CHANGELOG for $VERSION"
+          git push origin "release/$version"
           
           # Set the changelog text as a step output
           echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
