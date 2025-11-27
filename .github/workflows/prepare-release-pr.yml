@@ -80,12 +80,12 @@ jobs:
           git fetch upstream --tags
 
           mirrorVersion=$(grep '^VERSION_NAME=' gradle.properties | cut -d= -f2)
-          version="$mirrorVersion+based_on=${{inputs.based_on}}"
+          versionName="$mirrorVersion+based_on=${{inputs.based_on}}"
 
           git checkout ${{inputs.feature_branch}}
-          git checkout -b "release/$version"
-          git rebase --onto ${{inputs.based_on}} origin/main "release/$version"
-          git push origin "release/$version"
+          git checkout -b "release/$versionName"
+          git rebase --onto ${{inputs.based_on}} origin/main "release/$versionName"
+          git push origin "release/$versionName"
 
           # Outputs
           echo "MIRROR_VERSION=$mirrorVersion" >> $GITHUB_OUTPUT
@@ -113,15 +113,12 @@ jobs:
           append_section "Fixed" "${{ inputs.changelog_fixed }}"
           append_section "Security" "${{ inputs.changelog_security }}"
           
-          # Write accumulated changelog text to CHANGELOG.md
-          echo -e "$changelog_content" >> CHANGELOG.md
-          
           # Insert changelog_entry before the second occurrence of a line starting with ##
           changelog="\n## [$VERSION_NAME](https://github.com/CPardi/Messages-Mirror/releases/tag/$VERSION_NAME) - $DATE"
           changelog+=changelog_content
           sed -i.bak -e "/^## /{
             N
-            /^## .*\\n## /i changelog
+            /^## .*\\n## /i $changelog
           }" CHANGELOG.md
           
           git add CHANGELOG.md
@@ -152,3 +149,10 @@ jobs:
           files: app/build/outputs/apk/foss/release/*release.apk
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+      - name: Cleanup release branch on failure
+        if: failure()
+        run: |
+          git fetch origin
+          git push origin --delete "release/$VERSION_NAME"
+        env:
+          VERSION_NAME: ${{ steps.release-branch.outputs.VERSION_NAME }}
