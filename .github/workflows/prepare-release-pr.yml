@@ -98,15 +98,15 @@ jobs:
             local title="$1"
             local content="$2"
             if [ -n "$content" ]; then
-              changelog_text+="\n### $title\n\n$content\n"
+              changelog_text+="\n\n### $title\n\n$content\n"
             fi
           }
           
           DATE=$(date +%Y-%m-%d)
           VERSION=${{ steps.release-branch.outputs.VERSION_NAME }}
           
-          changelog_text="\n## $VERSION - $DATE\n\n"
-          changelog_text+="Based on version [${{inputs.based_on}}](https://github.com/FossifyOrg/Messages/releases/tag/${{inputs.based_on}}) of [FossifyOrg/Messages](https://github.com/FossifyOrg/Messages).\n\n"
+          changelog_text="\n## $VERSION - $DATE"
+          changelog_text+="\n\nBased on version [${{inputs.based_on}}](https://github.com/FossifyOrg/Messages/releases/tag/${{inputs.based_on}}) of [FossifyOrg/Messages](https://github.com/FossifyOrg/Messages)."
           append_section "Added" "${{ inputs.changelog_added }}"
           append_section "Changed" "${{ inputs.changelog_changed }}"
           append_section "Deprecated" "${{ inputs.changelog_deprecated }}"
