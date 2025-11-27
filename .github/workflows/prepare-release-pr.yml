@@ -60,10 +60,10 @@ jobs:
       - name: Build Release APK
         run: ./gradlew assembleFossRelease -PVERSION_NAME="${{ steps.release-branch.outputs.VERSION_NAME }}"
         env:
-          SIGNING_STORE_FILE: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
-          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
-          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          SIGNING_STORE_FILE: ${{ secrets.KEYSTORE_BASE64 }}
+          SIGNING_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe
