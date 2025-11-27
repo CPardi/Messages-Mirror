@@ -54,6 +54,27 @@ for mirroring, as all network traffic is handled by the ntfy app.
 - The encryption key is generated and stored locally on each device. **If lost, messages cannot be decrypted.**
 - The ntfy server handles transport but does not decrypt messages. For maximum privacy, consider [self-hosting ntfy](https://docs.ntfy.sh/install/).
 
+## Limitations
+
+While the Messages Mirror app provides core functionality for SMS mirroring, some features and receivers are still under development. Currently, **only the `SmsReceiver` has been fully implemented** to handle incoming SMS messages.
+
+### Unavailable Operations and Receivers
+
+| Operation                                           | Status          | Notes                                         |
+|-----------------------------------------------------|-----------------|-----------------------------------------------|
+| MMS Receiving (`MmsReceiver`)                       | Not implemented | MMS messages are not yet mirrored.            |
+| SMS Sent Status (`SmsStatusSentReceiver`)           | Not implemented | Sent message status updates are not mirrored. |
+| SMS Delivered Status (`SmsStatusDeliveredReceiver`) | Not implemented | Delivery reports are not mirrored.            |
+| MMS Sent Status (`MmsSentReceiver`)                 | Not implemented | MMS sent status updates are not mirrored.     |
+| Scheduled Messages (`ScheduledMessageReceiver`)     | Not implemented | Scheduled message sending is not mirrored.    |
+| Message Deletion (`DeleteSmsReceiver`)              | Not implemented | Message deletions are not mirrored.           |
+| Direct Reply (`DirectReplyReceiver`)                | Not implemented | Inline reply handling is not mirrored.        |
+| Mark as Read (`MarkAsReadReceiver`)                 | Not implemented | Read status updates are not mirrored.         |
+
+### Sending SMS Messages
+
+Currently, **sending SMS messages is performed directly from the Mirror device**. This means that while incoming messages are mirrored from the Host device, outgoing messages are sent by the Mirror device itself. Effectively meaning that sending SMS messages if not supported if the mirror device does not contain a SIM card. Future updates may introduce options to route outgoing messages through the Host device for full mirroring functionality.
+
 ## Troubleshooting
 
 - **Messages not appearing?**  
