@@ -89,7 +89,7 @@ jobs:
 
           # Outputs
           echo "MIRROR_VERSION=$mirrorVersion" >> $GITHUB_OUTPUT
-          echo "VERSION_NAME=$version" >> $GITHUB_OUTPUT
+          echo "VERSION_NAME=$versionName" >> $GITHUB_OUTPUT
 
       - name: Update changelog
         id: update-changelog
@@ -116,12 +116,10 @@ jobs:
           # Insert changelog_entry before the second occurrence of a line starting with ##
           changelog="\n## [$VERSION_NAME](https://github.com/CPardi/Messages-Mirror/releases/tag/$VERSION_NAME) - $DATE"
           changelog+=changelog_content
-          sed -i.bak -e "/^## /{
+          sed -i -e "/^## /{
             N
             /^## .*\\n## /i $changelog
           }" CHANGELOG.md
-          
-          rm -f CHANGELOG.md.bak
           
           git add CHANGELOG.md
           git commit -m "Update CHANGELOG for $VERSION_NAME"
