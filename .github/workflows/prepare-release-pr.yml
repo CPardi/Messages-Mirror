@@ -98,14 +98,14 @@ jobs:
             local title="$1"
             local content="$2"
             if [ -n "$content" ]; then
-              changelog_text+="\n\n### $title\n\n$content\n"
+              changelog_content+="\n\n### $title\n\n$content\n"
             fi
           }
           
           DATE=$(date +%Y-%m-%d)
           VERSION_NAME=${{ steps.release-branch.outputs.VERSION_NAME }}
           
-          changelog_text+="\n\nBased on version [${{inputs.based_on}}](https://github.com/FossifyOrg/Messages/releases/tag/${{inputs.based_on}}) of [FossifyOrg/Messages](https://github.com/FossifyOrg/Messages)."
+          changelog_content+="\n\nBased on version [${{inputs.based_on}}](https://github.com/FossifyOrg/Messages/releases/tag/${{inputs.based_on}}) of [FossifyOrg/Messages](https://github.com/FossifyOrg/Messages)."
           append_section "Added" "${{ inputs.changelog_added }}"
           append_section "Changed" "${{ inputs.changelog_changed }}"
           append_section "Deprecated" "${{ inputs.changelog_deprecated }}"
@@ -114,15 +114,23 @@ jobs:
           append_section "Security" "${{ inputs.changelog_security }}"
           
           # Write accumulated changelog text to CHANGELOG.md
-          echo -e "\n## [$VERSION_NAME](https://github.com/CPardi/Messages-Mirror/releases/tag/$VERSION_NAME) - $DATE" >> CHANGELOG.md
-          echo -e "$changelog_text" >> CHANGELOG.md
+          echo -e "$changelog_content" >> CHANGELOG.md
+          
+          # Insert changelog_entry before the second occurrence of a line starting with ##
+          changelog = "\n## [$VERSION_NAME](https://github.com/CPardi/Messages-Mirror/releases/tag/$VERSION_NAME) - $DATE"
+          changelog += changelog_content
+          sed -i.bak -e "/^## /{
+            N
+            /^## .*\\n## /i changelog
+          }" CHANGELOG.md
+          
           git add CHANGELOG.md
           git commit -m "Update CHANGELOG for $VERSION_NAME"
           git push origin "release/$VERSION_NAME"
           
           # Set the changelog text as a step output
           echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
-          echo -e "$changelog_text" >> $GITHUB_OUTPUT
+          echo -e "$changelog_content" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
       - name: Build Release APK
         run: |
