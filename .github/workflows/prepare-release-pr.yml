@@ -114,12 +114,23 @@ jobs:
           append_section "Security" "${{ inputs.changelog_security }}"
           
           # Insert changelog_entry before the second occurrence of a line starting with ##
-          changelog="\n## [$VERSION_NAME](https://github.com/CPardi/Messages-Mirror/releases/tag/$VERSION_NAME) - $DATE"
+          changelog="\n\n## [$VERSION_NAME](https://github.com/CPardi/Messages-Mirror/releases/tag/$VERSION_NAME) - $DATE"
           changelog+=changelog_content
           
-          updatedChangelog=$(awk '/^##/ && ++c == 2 {print $changelog} 1; END {if (c < 2) print $changelog}' CHANGELOG.md)
+          updatedChangelog=""
+  
+          found=0
+          while IFS= read -r line; do
+          if [[ $line =~ ^## ]] then
+          found=$((found+1))
+          if [ $found -eq 2 ]; then
+          updatedChangelog+="$changelog"
+          fi
+          fi
+        
+          updatedChangelog+="$line\n"
+          done < CHANGELOG.md
           
-          echo "$updatedChangelog"
           echo "$updatedChangelog" > CHANGELOG.md 
           
           git add CHANGELOG.md
