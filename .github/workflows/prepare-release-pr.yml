@@ -105,7 +105,7 @@ jobs:
           DATE=$(date +%Y-%m-%d)
           VERSION_NAME=${{ steps.release-branch.outputs.VERSION_NAME }}
           
-          changelog_content+="\n\nBased on version [${{inputs.based_on}}](https://github.com/FossifyOrg/Messages/releases/tag/${{inputs.based_on}}) of [FossifyOrg/Messages](https://github.com/FossifyOrg/Messages)."
+          changelog_content+="Based on version [${{inputs.based_on}}](https://github.com/FossifyOrg/Messages/releases/tag/${{inputs.based_on}}) of [FossifyOrg/Messages](https://github.com/FossifyOrg/Messages)."
           append_section "Added" "${{ inputs.changelog_added }}"
           append_section "Changed" "${{ inputs.changelog_changed }}"
           append_section "Deprecated" "${{ inputs.changelog_deprecated }}"
@@ -115,7 +115,7 @@ jobs:
           
           # Insert changelog_entry before the second occurrence of a line starting with ##
           changelog="## [$VERSION_NAME](https://github.com/CPardi/Messages-Mirror/releases/tag/$VERSION_NAME) - $DATE"
-          changelog+="$changelog_content\n"
+          changelog+="\n\n$changelog_content\n"
           
           updatedChangelog=""
   
@@ -165,3 +165,10 @@ jobs:
         run: |
           git fetch origin
           git push origin --delete "release/${{ steps.release-branch.outputs.VERSION_NAME }}"
+      - name: Clean up Keystore
+        if: always()
+        run: |
+          if [ -f "${{ inputs.keystore_path }}" ]; then
+            shred -u "${{ inputs.keystore_path }}" || rm -f "${{ inputs.keystore_path }}"
+          fi
+        continue-on-error: true
