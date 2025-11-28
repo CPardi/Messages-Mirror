@@ -114,8 +114,8 @@ jobs:
           append_section "Security" "${{ inputs.changelog_security }}"
           
           # Insert changelog_entry before the second occurrence of a line starting with ##
-          changelog="\n\n## [$VERSION_NAME](https://github.com/CPardi/Messages-Mirror/releases/tag/$VERSION_NAME) - $DATE"
-          changelog+="$changelog_content\n\n"
+          changelog="## [$VERSION_NAME](https://github.com/CPardi/Messages-Mirror/releases/tag/$VERSION_NAME) - $DATE"
+          changelog+="$changelog_content\n"
           
           updatedChangelog=""
   
