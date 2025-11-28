@@ -1,4 +1,4 @@
-name: Prepare Release PR
+name: Prepare Draft Release
 
 on:
   workflow_dispatch:
@@ -37,7 +37,7 @@ on:
         type: string
 
 jobs:
-  prepare-release-branch:
+  prepare-release:
     name: Prepare release branch from VERSION_NAME
     runs-on: ubuntu-latest
     steps:
