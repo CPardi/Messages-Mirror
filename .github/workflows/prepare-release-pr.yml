@@ -145,7 +145,7 @@ jobs:
           basedOn=${{inputs.based_on}}
           versionName=${{ steps.release-branch.outputs.VERSION_NAME }}
           
-          # Assume the forked repository contain less 10000 releases (using tags) for the versionCode calculation not have collisions. 
+          # Assume the forked repository will contain less 10000 releases (from tags), then the versionCode calculation not have collisions. 
           versionCode=$(( 10000 * ($(git rev-list --count release/$versionName) - $(git rev-list --count $basedOn)) + $(git tag --list | wc -l) ))
           echo "versionCode=$versionCode"
 
