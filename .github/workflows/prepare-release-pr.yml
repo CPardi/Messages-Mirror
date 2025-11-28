@@ -116,13 +116,9 @@ jobs:
           # Insert changelog_entry before the second occurrence of a line starting with ##
           changelog="\n## [$VERSION_NAME](https://github.com/CPardi/Messages-Mirror/releases/tag/$VERSION_NAME) - $DATE"
           changelog+=changelog_content
-          
-          echo "$changelog"
-          
-          updatedChangelog=$(awk '/^##/ && ++c == 2 {print "$changelog"} 1; END {if (c < 2) print "$changelog"}' CHANGELOG.md)
+          updatedChangelog=$(awk '/^##/ && ++c == 2 {echo "$changelog"} 1; END {if (c < 2) echo "$changelog"}' CHANGELOG.md)
           
           echo "$updatedChangelog"
-          
           echo "$updatedChangelog" > CHANGELOG.md 
           
           git add CHANGELOG.md
