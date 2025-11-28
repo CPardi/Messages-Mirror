@@ -121,17 +121,16 @@ jobs:
   
           found=0
           while IFS= read -r line; do
-          if [[ $line =~ ^## ]] then
-          found=$((found+1))
-          if [ $found -eq 2 ]; then
-          updatedChangelog+="$changelog"
-          fi
-          fi
-        
-          updatedChangelog+="$line\n"
+            if [[ $line =~ ^## ]] then
+              found=$((found+1))
+              if [ $found -eq 2 ]; then
+                updatedChangelog+="$changelog"
+              fi
+            fi
+            updatedChangelog+="$line\n"
           done < CHANGELOG.md
           
-          echo "$updatedChangelog" > CHANGELOG.md 
+          echo -e "$updatedChangelog" > CHANGELOG.md 
           
           git add CHANGELOG.md
           git commit -m "Update CHANGELOG for $VERSION_NAME"
