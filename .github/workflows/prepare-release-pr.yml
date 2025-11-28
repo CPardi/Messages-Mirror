@@ -68,6 +68,7 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
+
       - name: Configure Git user
         run: |
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -140,6 +141,7 @@ jobs:
           echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
           echo -e "$changelog_content" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Build Release APK
         run: |
           basedOn=${{inputs.based_on}}
@@ -168,11 +170,13 @@ jobs:
           files: app/build/outputs/apk/foss/release/*release.apk
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
       - name: Cleanup release branch on failure
         if: success() == false
         run: |
           git fetch origin
           git push origin --delete "release/${{ steps.release-branch.outputs.VERSION_NAME }}"
+
       - name: Clean up Keystore
         if: always()
         run: |
