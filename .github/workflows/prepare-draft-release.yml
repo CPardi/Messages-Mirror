@@ -1,0 +1,186 @@
+name: Prepare Draft Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      based_on:
+        description: "Base branch or tag to base the release on"
+        required: true
+        type: string
+      feature_branch:
+        description: "Branch containing additional features"
+        default: "feature/_main-message-mirror"
+        type: string
+      changelog_added:
+        description: "For new features"
+        default: ""
+        type: string
+      changelog_changed:
+        description: "For changes in existing functionality"
+        default: ""
+        type: string
+      changelog_deprecated:
+        description: "For soon-to-be removed features"
+        default: ""
+        type: string
+      changelog_removed:
+        description: "For now removed features"
+        default: ""
+        type: string
+      changelog_fixed:
+        description: "For any bug fixes"
+        default: ""
+        type: string
+      changelog_security:
+        description: "In case of vulnerabilities"
+        default: ""
+        type: string
+
+jobs:
+  prepare-release:
+    name: Prepare release branch from VERSION_NAME
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # ensure full history for rebase operations
+
+      - name: Create GitHub app token
+        id: app-token
+        uses: actions/create-github-app-token@7e473efe3cb98aa54f8d4bac15400b15fad77d94
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Set up JDK
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Cache Gradle packages
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Configure Git user
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+
+      - name: Create release branch
+        id: release-branch
+        run: |
+          git remote add upstream https://github.com/FossifyOrg/Messages.git
+          git fetch upstream --tags
+
+          mirrorVersion=$(grep '^VERSION_NAME=' gradle.properties | cut -d= -f2)
+          versionName="$mirrorVersion+based_on=${{inputs.based_on}}"
+
+          git checkout ${{inputs.feature_branch}}
+          git checkout -b "release/$versionName"
+          git rebase --onto ${{inputs.based_on}} origin/main "release/$versionName"
+          git push origin "release/$versionName"
+
+          # Outputs
+          echo "MIRROR_VERSION=$mirrorVersion" >> $GITHUB_OUTPUT
+          echo "VERSION_NAME=$versionName" >> $GITHUB_OUTPUT
+
+      - name: Update changelog
+        id: update-changelog
+        run: |
+          append_section() {
+            local title="$1"
+            local content="$2"
+            if [ -n "$content" ]; then
+              changelog_content+="\n\n### $title\n\n$content\n"
+            fi
+          }
+          
+          DATE=$(date +%Y-%m-%d)
+          VERSION_NAME=${{ steps.release-branch.outputs.VERSION_NAME }}
+          
+          changelog_content+="Based on version [${{inputs.based_on}}](https://github.com/FossifyOrg/Messages/releases/tag/${{inputs.based_on}}) of [FossifyOrg/Messages](https://github.com/FossifyOrg/Messages)."
+          append_section "Added" "${{ inputs.changelog_added }}"
+          append_section "Changed" "${{ inputs.changelog_changed }}"
+          append_section "Deprecated" "${{ inputs.changelog_deprecated }}"
+          append_section "Removed" "${{ inputs.changelog_removed }}"
+          append_section "Fixed" "${{ inputs.changelog_fixed }}"
+          append_section "Security" "${{ inputs.changelog_security }}"
+          
+          # Insert changelog_entry before the second occurrence of a line starting with ##
+          changelog="## [$VERSION_NAME](https://github.com/CPardi/Messages-Mirror/releases/tag/$VERSION_NAME) - $DATE"
+          changelog+="\n\n$changelog_content\n"
+          
+          updatedChangelog=""
+  
+          found=0
+          while IFS= read -r line; do
+            if [[ $line =~ ^## ]] then
+              found=$((found+1))
+              if [ $found -eq 2 ]; then
+                updatedChangelog+="$changelog"
+              fi
+            fi
+            updatedChangelog+="$line\n"
+          done < CHANGELOG.md
+          
+          echo -e "$updatedChangelog" > CHANGELOG.md 
+          
+          git add CHANGELOG.md
+          git commit -m "Update CHANGELOG for $VERSION_NAME"
+          git push origin "release/$VERSION_NAME"
+          
+          # Set the changelog text as a step output
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$changelog_content" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Build Release APK
+        run: |
+          basedOn=${{inputs.based_on}}
+          versionName=${{ steps.release-branch.outputs.VERSION_NAME }}
+          
+          # Assume the forked repository will contain less 10000 releases (from tags), then the versionCode calculation not have collisions. 
+          versionCode=$(( 10000 * ($(git rev-list --count release/$versionName) - $(git rev-list --count $basedOn)) + $(git tag --list | wc -l) ))
+          echo "versionCode=$versionCode"
+
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/release.jks
+          ./gradlew assembleFossRelease -PVERSION_CODE="$versionCode" -PVERSION_NAME="$versionName"
+        env:
+          SIGNING_STORE_FILE: release.jks
+          SIGNING_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe
+        with:
+          tag_name: ${{ steps.release-branch.outputs.VERSION_NAME }}
+          name: ${{ steps.release-branch.outputs.VERSION_NAME }}
+          body: ${{ steps.update-changelog.outputs.CHANGELOG }}
+          target_commitish: "release/${{ steps.release-branch.outputs.VERSION_NAME }}"
+          draft: TRUE
+          files: app/build/outputs/apk/foss/release/*release.apk
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Cleanup release branch on failure
+        if: success() == false
+        run: |
+          git fetch origin
+          git push origin --delete "release/${{ steps.release-branch.outputs.VERSION_NAME }}"
+
+      - name: Clean up Keystore
+        if: always()
+        run: |
+          if [ -f "${{ inputs.keystore_path }}" ]; then
+            shred -u "${{ inputs.keystore_path }}" || rm -f "${{ inputs.keystore_path }}"
+          fi
+        continue-on-error: true
