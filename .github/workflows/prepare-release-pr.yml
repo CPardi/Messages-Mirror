@@ -117,7 +117,7 @@ jobs:
           changelog="\n## [$VERSION_NAME](https://github.com/CPardi/Messages-Mirror/releases/tag/$VERSION_NAME) - $DATE"
           changelog+=changelog_content
           updatedChangelog=$(awk '/^##/ && ++c == 2 {print $changelog} 1; END {if (c < 2) print $changelog}' CHANGELOG.md)
-          echo $updatedChangelog > CHANGELOG.md 
+          echo "$updatedChangelog" > CHANGELOG.md 
           
           git add CHANGELOG.md
           git commit -m "Update CHANGELOG for $VERSION_NAME"
