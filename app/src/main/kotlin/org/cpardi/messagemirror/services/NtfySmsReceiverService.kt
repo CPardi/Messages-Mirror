@@ -58,8 +58,9 @@ class NtfySmsReceiverService : Service() {
             try {
                 decryptedMessage = CryptoHelper.decrypt(encryptedMessage, key)
             }
-            catch (e: IllegalArgumentException) {
+            catch (e: Exception) {
                 context.showErrorToast(e)
+                return
             }
 
             val dto = EventDto.Companion.Serializer.decodeFromString<EventDto>(decryptedMessage)
