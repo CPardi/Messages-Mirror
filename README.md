@@ -13,6 +13,11 @@ fixed location, while still reading SMS on a separate "Mirror" device. The Mirro
 privacy-focused eSIM or Wi‑Fi for internet access, reducing the risk of location tracking tied to your
 phone number on the device you carry.
 
+This application does **not** mitigate the inherent security flaws in the SMS protocol. SMS messages 
+are still delivered to the Host device connected to the phone network. The app’s purpose is to allow 
+you to receive and read SMS messages on a separate Mirror device, while keeping the connected Host 
+device in a fixed location.
+
 ## How it works
 
 - Encrypted forwarding: Incoming SMS messages on the Host are serialized and AES-encrypted, then sent to a ntfy
@@ -50,7 +55,6 @@ for mirroring, as all network traffic is handled by the ntfy app.
 
 ## Security Notes
 
-- Messages are encrypted with AES before being sent via ntfy.
 - The encryption key is generated and stored locally on each device. **If lost, messages cannot be decrypted.**
 - The ntfy server handles transport but does not decrypt messages. For maximum privacy, consider [self-hosting ntfy](https://docs.ntfy.sh/install/).
 
