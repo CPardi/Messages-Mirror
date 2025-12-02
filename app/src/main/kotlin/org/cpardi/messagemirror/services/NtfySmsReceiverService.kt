@@ -29,6 +29,8 @@ import org.fossify.messages.R
 import org.fossify.messages.activities.MainActivity
 import org.fossify.messages.extensions.getThreadId
 import org.fossify.messages.receivers.SmsReceiver
+import javax.crypto.BadPaddingException
+import javax.crypto.IllegalBlockSizeException
 import javax.crypto.spec.SecretKeySpec
 
 
@@ -58,9 +60,19 @@ class NtfySmsReceiverService : Service() {
             try {
                 decryptedMessage = CryptoHelper.decrypt(encryptedMessage, key)
             }
-            catch (e: IllegalArgumentException) {
-                context.showErrorToast(e)
+            catch (e: Exception) {
+                when (e) {
+                    is IndexOutOfBoundsException,
+                    is IllegalArgumentException,
+                    is IllegalBlockSizeException,
+                    is BadPaddingException -> {
+                        context.showErrorToast(e)
+                        return
+                    }
+                    else -> throw e
+                }
             }
+
 
             val dto = EventDto.Companion.Serializer.decodeFromString<EventDto>(decryptedMessage)
             if (dto !is EventDto.SmsReceive) return
