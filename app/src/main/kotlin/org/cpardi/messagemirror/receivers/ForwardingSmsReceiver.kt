@@ -6,6 +6,7 @@ import android.content.Intent
 import android.provider.Telephony
 import android.util.Base64
 import org.cpardi.messagemirror.helpers.CryptoHelper
+import org.cpardi.messagemirror.helpers.SETTINGS_NAME
 import org.cpardi.messagemirror.models.EventDto
 import org.cpardi.messagemirror.views.MirrorSettingsView
 import org.fossify.commons.helpers.ensureBackgroundThread
@@ -27,10 +28,7 @@ class ForwardingSmsReceiver(private val wrappedReceiver: SmsReceiver = SmsReceiv
 
         wrappedReceiver.onReceive(context, intent)
 
-        val prefs = context.getSharedPreferences(
-            MirrorSettingsView.Companion.SETTINGS_NAME,
-            Context.MODE_PRIVATE
-        )
+        val prefs = context.getSharedPreferences(SETTINGS_NAME, Context.MODE_PRIVATE)
         val isEnabled = prefs.getBoolean(MirrorSettingsView.Companion.ENABLE_NAME, false)
         val mode = MirrorSettingsView.DeviceMode.fromInt(prefs.getInt(MirrorSettingsView.Companion.MODE_NAME, MirrorSettingsView.DeviceMode.SmsHost.value))
         val topic = prefs.getString(MirrorSettingsView.Companion.TOPIC_NAME, "")

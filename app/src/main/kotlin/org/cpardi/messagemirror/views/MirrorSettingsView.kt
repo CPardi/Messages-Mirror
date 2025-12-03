@@ -18,6 +18,7 @@ import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
 import org.cpardi.messagemirror.helpers.CryptoHelper
 import org.cpardi.messagemirror.dialogs.ShareMirrorSettingsDialog
+import org.cpardi.messagemirror.helpers.SETTINGS_NAME
 import org.cpardi.messagemirror.receivers.ForwardingSmsReceiver
 import org.fossify.commons.compose.extensions.getActivity
 import org.fossify.commons.dialogs.RadioGroupDialog
@@ -39,7 +40,6 @@ class MirrorSettingsView @JvmOverloads constructor(
     private val barcodeLauncher = (context as? ComponentActivity)?.registerForActivityResult(ScanContract()) { result -> handleBarcodeContent(result, context) }
 
     companion object {
-        const val SETTINGS_NAME = "mirror_settings"
         const val MODE_NAME = "mode"
         const val ENABLE_NAME = "mirror_enabled"
         const val TOPIC_NAME = "topic_name"
