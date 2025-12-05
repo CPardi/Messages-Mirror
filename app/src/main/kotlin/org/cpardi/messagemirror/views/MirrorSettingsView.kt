@@ -25,6 +25,7 @@ import org.cpardi.messagemirror.receivers.ForwardingSmsReceiver
 import org.fossify.commons.compose.extensions.getActivity
 import org.fossify.commons.dialogs.RadioGroupDialog
 import org.fossify.commons.extensions.applyColorFilter
+import org.fossify.commons.extensions.getProperPrimaryColor
 import org.fossify.commons.extensions.getProperTextColor
 import org.fossify.commons.extensions.isPackageInstalled
 import org.fossify.commons.extensions.updateTextColors
@@ -88,6 +89,7 @@ class MirrorSettingsView @JvmOverloads constructor(
         setupScan()
 
         context.updateTextColors(binding.mirrorSettingsRoot)
+        binding.mirrorSettingsSectionLabel.setTextColor(context.getProperPrimaryColor())
 
         arrayOf(
             binding.mirrorSettingsGenerateTopicButton,
