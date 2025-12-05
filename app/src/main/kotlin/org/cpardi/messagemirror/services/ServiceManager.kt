@@ -21,10 +21,6 @@ class ServiceManager(private val context: Context) {
     }
 
     class ServiceStartWorker(private val context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
-        companion object {
-            const val AUTO_RESTART_WORKER_PERIODIC_VERSION = "AutoRestartWorkerPeriodicVersion"
-        }
-
         override suspend fun doWork(): Result {
             if (context.applicationContext !is Application) {
                 return Result.failure()

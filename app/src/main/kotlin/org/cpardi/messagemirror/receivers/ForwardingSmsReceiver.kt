@@ -29,9 +29,9 @@ class ForwardingSmsReceiver(private val wrappedReceiver: SmsReceiver = SmsReceiv
         wrappedReceiver.onReceive(context, intent)
 
         val prefs = context.getSharedPreferences(SETTINGS_NAME, Context.MODE_PRIVATE)
-        val isEnabled = prefs.getBoolean(MirrorSettingsView.Companion.ENABLE_NAME, false)
-        val mode = MirrorSettingsView.DeviceMode.fromInt(prefs.getInt(MirrorSettingsView.Companion.MODE_NAME, MirrorSettingsView.DeviceMode.SmsHost.value))
-        val topic = prefs.getString(MirrorSettingsView.Companion.TOPIC_NAME, "")
+         val isEnabled = prefs.getBoolean(MirrorSettingsView.ENABLE_NAME, false)
+        val mode = MirrorSettingsView.DeviceMode.fromInt(prefs.getInt(MirrorSettingsView.MODE_NAME, MirrorSettingsView.DeviceMode.SmsHost.value))
+        val topic = prefs.getString(MirrorSettingsView.TOPIC_NAME, "")
 
         if (!isEnabled || mode != MirrorSettingsView.DeviceMode.SmsHost) return
 
@@ -52,9 +52,9 @@ class ForwardingSmsReceiver(private val wrappedReceiver: SmsReceiver = SmsReceiv
             }
 
             val dto: EventDto = EventDto.SmsReceive(address, subject, status, body, date)
-            val message = EventDto.Companion.Serializer.encodeToString(dto)
+            val message = EventDto.Serializer.encodeToString(dto)
 
-            val keyBase64 = prefs.getString(MirrorSettingsView.Companion.ENCRYPTION_KEY_NAME, null)
+            val keyBase64 = prefs.getString(MirrorSettingsView.ENCRYPTION_KEY_NAME, null)
             val keyBytes = Base64.decode(keyBase64, Base64.NO_WRAP)
             val key = SecretKeySpec(keyBytes, CryptoHelper.ALGORITHM)
 

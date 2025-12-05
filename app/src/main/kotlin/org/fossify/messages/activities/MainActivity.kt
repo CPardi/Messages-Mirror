@@ -15,9 +15,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
-import org.cpardi.messagemirror.helpers.SETTINGS_NAME
 import org.cpardi.messagemirror.services.ServiceManager
-import org.cpardi.messagemirror.services.ServiceManager.ServiceStartWorker
 import org.fossify.commons.dialogs.PermissionRequiredDialog
 import org.fossify.commons.extensions.adjustAlpha
 import org.fossify.commons.extensions.appLaunched
@@ -80,7 +78,6 @@ import org.fossify.messages.models.SearchResult
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import java.util.concurrent.TimeUnit
 
 
 class MainActivity : SimpleActivity() {
@@ -298,21 +295,6 @@ class MainActivity : SimpleActivity() {
     }
 
     private fun startNtfySmsService() {
-        val workManager = WorkManager.getInstance(context = this)
-        val prefs = applicationContext.getSharedPreferences(SETTINGS_NAME, MODE_PRIVATE)
-        val request = PeriodicWorkRequest
-            .Builder(workerClass = ServiceStartWorker::class.java, repeatInterval = 16, repeatIntervalTimeUnit = TimeUnit.MINUTES)
-            .build()
-        val versionCode = BuildConfig.VERSION_CODE
-        val existingPeriodicWorkPolicy = if (versionCode == prefs.getInt(ServiceStartWorker.AUTO_RESTART_WORKER_PERIODIC_VERSION, 0)) {
-            ExistingPeriodicWorkPolicy.KEEP
-        } else {
-            ExistingPeriodicWorkPolicy.REPLACE
-        }
-
-        prefs.edit().putInt(ServiceStartWorker.AUTO_RESTART_WORKER_PERIODIC_VERSION, versionCode)
-        workManager.enqueueUniquePeriodicWork(uniqueWorkName = "AutoRestartWorkerPeriodic", existingPeriodicWorkPolicy, request)
-
         ServiceManager(applicationContext).refresh();
     }
 
