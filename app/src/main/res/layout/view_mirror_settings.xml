@@ -93,7 +93,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_toEndOf="@id/mirror_settings_topic_label"
-                    android:layout_toStartOf="@id/mirror_settings_generate_button"
+                    android:layout_toStartOf="@id/mirror_settings_generate_topic_button"
                     android:layout_marginStart="26dp"
                     android:layout_marginEnd="8dp"
                     android:inputType="textUri"
@@ -102,28 +102,29 @@
                     android:gravity="end|center_vertical"
                     android:hint="@string/example_topic" />
 
-                <ImageButton
-                    android:id="@+id/mirror_settings_generate_button"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                <org.fossify.commons.views.MyButton
+                    android:id="@+id/mirror_settings_generate_topic_button"
+                    android:layout_width="@dimen/normal_icon_size"
+                    android:layout_height="@dimen/normal_icon_size"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:clickable="false"
                     android:contentDescription="@string/generate_random_topic"
-                    android:padding="8dp"
-                    android:src="@drawable/baseline_autorenew_24" />
+                    android:drawableTop="@drawable/baseline_autorenew_24"
+                    android:paddingVertical="@dimen/small_margin" />
 
-                <ImageButton
-                    android:id="@+id/mirror_settings_copy_button"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                <org.fossify.commons.views.MyButton
+                    android:id="@+id/mirror_settings_copy_topic_button"
+                    android:layout_width="@dimen/normal_icon_size"
+                    android:layout_height="@dimen/normal_icon_size"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?selectableItemBackgroundBorderless"
                     android:contentDescription="@string/copy_topic_to_clipboard"
-                    android:padding="8dp"
-                    android:src="@drawable/baseline_content_copy_24" />
+                    android:drawableTop="@drawable/baseline_content_copy_24"
+                    android:paddingVertical="@dimen/medium_margin" />
 
             </RelativeLayout>
 
@@ -156,28 +157,28 @@
                     android:imeOptions="actionDone"
                     android:gravity="end|center_vertical" />
 
-                <ImageButton
+                <org.fossify.commons.views.MyButton
                     android:id="@+id/mirror_settings_generate_key_button"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="@dimen/normal_icon_size"
+                    android:layout_height="@dimen/normal_icon_size"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?selectableItemBackgroundBorderless"
                     android:contentDescription="@string/generate_random_key"
-                    android:padding="8dp"
-                    android:src="@drawable/baseline_autorenew_24" />
+                    android:drawableTop="@drawable/baseline_autorenew_24"
+                    android:paddingVertical="@dimen/small_margin" />
 
-                <ImageButton
+                <org.fossify.commons.views.MyButton
                     android:id="@+id/mirror_settings_copy_key_button"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="@dimen/normal_icon_size"
+                    android:layout_height="@dimen/normal_icon_size"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?selectableItemBackgroundBorderless"
                     android:contentDescription="@string/copy_key_to_clipboard"
-                    android:padding="8dp"
-                    android:src="@drawable/baseline_content_copy_24" />
+                    android:drawableTop="@drawable/baseline_content_copy_24"
+                    android:paddingVertical="@dimen/medium_margin" />
 
             </RelativeLayout>
 
