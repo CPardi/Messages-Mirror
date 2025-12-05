@@ -17,6 +17,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import org.cpardi.messagemirror.helpers.CryptoHelper
+import org.cpardi.messagemirror.helpers.SETTINGS_NAME
 import org.cpardi.messagemirror.models.EventDto
 import org.cpardi.messagemirror.receivers.ForwardingSmsReceiver
 import org.cpardi.messagemirror.views.MirrorSettingsView
@@ -40,9 +41,21 @@ class NtfySmsReceiverService : Service() {
         const val NTFY_RECEIVE_MESSAGE_ACTION = "io.heckel.ntfy.MESSAGE_RECEIVED"
     }
 
+    class BootStartReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            ServiceManager(context).refresh()
+        }
+    }
+
+    class AutoRestartReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            ServiceManager(context).refresh()
+        }
+    }
+
     private val messageReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val prefs = context.getSharedPreferences(MirrorSettingsView.Companion.SETTINGS_NAME, MODE_PRIVATE)
+            val prefs = context.getSharedPreferences(SETTINGS_NAME, MODE_PRIVATE)
             val isEnabled = prefs.getBoolean(MirrorSettingsView.Companion.ENABLE_NAME, false)
             val mode = MirrorSettingsView.DeviceMode.fromInt(prefs.getInt(MirrorSettingsView.Companion.MODE_NAME, MirrorSettingsView.DeviceMode.SmsHost.value))
             val subscribedTopic = prefs.getString(MirrorSettingsView.Companion.TOPIC_NAME, "")
@@ -146,19 +159,27 @@ class NtfySmsReceiverService : Service() {
             .build()
 
 
-
         val channelName = "MessageMirrorChannel"
-        val channel = NotificationChannel(channelId,  channelName, NotificationManager.IMPORTANCE_LOW)
+        val channel = NotificationChannel(channelId,  channelName, NotificationManager.IMPORTANCE_LOW).let {
+            it.setShowBadge(false)
+            it
+        }
+
         getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
 
         val id = 1
-        val foregroundServiceType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC else 0
+        val foregroundServiceType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE else 0
         ServiceCompat.startForeground(this, id, notification, foregroundServiceType)
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return START_STICKY;
+    }
+
     override fun onDestroy() {
-        super.onDestroy()
         unregisterReceiver(messageReceiver)
+        sendBroadcast(Intent(this, AutoRestartReceiver::class.java)) // Restart if necessary
+        super.onDestroy()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
