@@ -12,6 +12,10 @@ import android.provider.Telephony
 import android.text.TextUtils
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
+import org.cpardi.messagemirror.services.ServiceManager
 import org.fossify.commons.dialogs.PermissionRequiredDialog
 import org.fossify.commons.extensions.adjustAlpha
 import org.fossify.commons.extensions.appLaunched
@@ -71,7 +75,6 @@ import org.fossify.messages.models.Conversation
 import org.fossify.messages.models.Events
 import org.fossify.messages.models.Message
 import org.fossify.messages.models.SearchResult
-import org.cpardi.messagemirror.services.NtfySmsReceiverService
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -291,8 +294,7 @@ class MainActivity : SimpleActivity() {
     }
 
     private fun startNtfySmsService() {
-        val intent = Intent(this, NtfySmsReceiverService::class.java)
-        startService(intent)
+        ServiceManager(applicationContext).refresh();
     }
 
     private fun getCachedConversations() {

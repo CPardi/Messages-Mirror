@@ -21,8 +21,11 @@
         android:name="android.permission.USE_BIOMETRIC"
         tools:node="remove" />
 
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+    <!-- org.cpardi.messagemirror  -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/> <!-- For instant delivery foregrounds service -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/> <!-- For instant delivery foregrounds service on SDK >= 34 -->
+    <!-- end org.cpardi.messagemirror -->
 
     <queries>
         <package android:name="org.fossify.contacts.debug" />
@@ -188,10 +191,29 @@
 
         <receiver android:name=".receivers.SmsStatusDeliveredReceiver" />
 
+        <!-- org.cpardi.messagemirror  -->
         <service
             android:name="org.cpardi.messagemirror.services.NtfySmsReceiverService"
-            android:foregroundServiceType="dataSync"
-            android:permission="android.permission.FOREGROUND_SERVICE"/>
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Service to monitor messages received from ntfy." />
+        </service>
+
+        <receiver
+            android:name="org.cpardi.messagemirror.services.NtfySmsReceiverService$BootStartReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="org.cpardi.messagemirror.services.NtfySmsReceiverService$AutoRestartReceiver"
+            android:enabled="true"
+            android:exported="false"/>
 
         <receiver
             android:name="org.cpardi.messagemirror.receivers.ForwardingSmsReceiver"
@@ -201,6 +223,7 @@
                 <action android:name="android.provider.Telephony.SMS_DELIVER" />
             </intent-filter>
         </receiver>
+        <!-- end org.cpardi.messagemirror  -->
 
         <receiver
             android:name="com.android.mms.transaction.PushReceiver"
