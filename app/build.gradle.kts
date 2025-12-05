@@ -150,6 +150,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.bundles.room)
     implementation(libs.zxing)
+    implementation(libs.androidx.work.runtime.ktx)
     ksp(libs.androidx.room.compiler)
     detektPlugins(libs.compose.detekt)
 }
