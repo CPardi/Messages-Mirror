@@ -68,7 +68,7 @@ class MirrorSettingsView @JvmOverloads constructor(
     }
 
     init {
-        (context as LifecycleOwner).lifecycle.addObserver(object : DefaultLifecycleObserver {
+        (context as? LifecycleOwner)?.lifecycle?.addObserver(object : DefaultLifecycleObserver {
             override fun onResume(owner: LifecycleOwner) {
                 super.onResume(owner)
                 onHostResume()
