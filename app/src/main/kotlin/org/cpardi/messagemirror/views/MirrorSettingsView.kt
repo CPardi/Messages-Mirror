@@ -13,6 +13,8 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
@@ -22,7 +24,11 @@ import org.cpardi.messagemirror.helpers.SETTINGS_NAME
 import org.cpardi.messagemirror.receivers.ForwardingSmsReceiver
 import org.fossify.commons.compose.extensions.getActivity
 import org.fossify.commons.dialogs.RadioGroupDialog
+import org.fossify.commons.extensions.applyColorFilter
+import org.fossify.commons.extensions.getProperPrimaryColor
+import org.fossify.commons.extensions.getProperTextColor
 import org.fossify.commons.extensions.isPackageInstalled
+import org.fossify.commons.extensions.updateTextColors
 import org.fossify.commons.models.RadioItem
 import org.fossify.messages.databinding.ViewMirrorSettingsBinding
 import org.fossify.messages.extensions.toArrayList
@@ -62,6 +68,15 @@ class MirrorSettingsView @JvmOverloads constructor(
     }
 
     init {
+        (context as? LifecycleOwner)?.lifecycle?.addObserver(object : DefaultLifecycleObserver {
+            override fun onResume(owner: LifecycleOwner) {
+                super.onResume(owner)
+                onHostResume()
+            }
+        })
+    }
+
+    private fun onHostResume() {
         setupEnableMirrorSwitch()
         setupDeviceMode()
         setupTopic()
@@ -72,6 +87,22 @@ class MirrorSettingsView @JvmOverloads constructor(
         setupCopyKey()
         setupShare()
         setupScan()
+
+        context.updateTextColors(binding.mirrorSettingsRoot)
+        binding.mirrorSettingsSectionLabel.setTextColor(context.getProperPrimaryColor())
+
+        arrayOf(
+            binding.mirrorSettingsGenerateTopicButton,
+            binding.mirrorSettingsCopyTopicButton,
+            binding.mirrorSettingsGenerateKeyButton,
+            binding.mirrorSettingsCopyKeyButton,
+        ).forEach {
+            val textColor = context.getProperTextColor()
+            it.setTextColor(textColor)
+            it.compoundDrawables.forEach { cd ->
+                cd?.applyColorFilter(textColor)
+            }
+        }
     }
 
     private fun setupEnableMirrorSwitch() = binding.apply {
@@ -117,14 +148,14 @@ class MirrorSettingsView @JvmOverloads constructor(
     }
 
     private fun setupGenerateTopic() = binding.apply {
-        mirrorSettingsGenerateButton.setOnClickListener {
+        mirrorSettingsGenerateTopicButton.setOnClickListener {
             val randomPassword = generateRandomPassword(length = 16)
             mirrorSettingsTopicEdittext.setText(randomPassword)
         }
     }
 
     private fun setupCopyTopic() = binding.apply {
-        mirrorSettingsCopyButton.setOnClickListener {
+        mirrorSettingsCopyTopicButton.setOnClickListener {
             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val textToCopy = mirrorSettingsTopicEdittext.text.toString()
             val clip = ClipData.newPlainText("Topic", textToCopy)
