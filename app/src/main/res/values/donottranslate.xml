@@ -1,5 +1,5 @@
 <resources>
-    <string name="package_name">org.fossify.messagesmirror</string>
+    <string name="package_name">org.cpardi.messagesmirror</string>
     <string name="app_name">Messages Mirror</string>
 
     <string name="mms_file_size_limit_100kb">100KB</string>
