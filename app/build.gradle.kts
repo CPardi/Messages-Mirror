@@ -138,7 +138,7 @@ detekt {
 }
 
 dependencies {
-    implementation("com.github.CPardi:Fossify-Commons:3c309b1")
+    implementation("com.github.CPardi:Fossify-Commons:cfcecaa71f")
     implementation(libs.eventbus)
     implementation(libs.indicator.fast.scroll)
     implementation(libs.mmslib)
