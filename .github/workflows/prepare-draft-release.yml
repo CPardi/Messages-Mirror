@@ -148,7 +148,7 @@ jobs:
           versionName=${{ steps.release-branch.outputs.VERSION_NAME }}
           
           # Assume the forked repository will contain less 10000 releases (from tags), then the versionCode calculation not have collisions. 
-          versionCode=$(( 10000 * ($(git rev-list --count release/$versionName) - $(git rev-list --count $basedOn)) + $(git tag --list | wc -l) ))
+          versionCode=$(( 10000 * ($(git rev-list --count release/$versionName) - $(git rev-list --count $basedOn)) + $(git tag --list --merged $basedOn | wc -l) ))
           echo "versionCode=$versionCode"
 
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/release.jks
