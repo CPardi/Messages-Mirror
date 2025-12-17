@@ -47,7 +47,8 @@ class ForwardingSmsReceiver(private val wrappedReceiver: SmsReceiver = SmsReceiv
                 date = System.currentTimeMillis()
             }
 
-            val deviceID = prefs.getString(Constants.DEVICE_ID_NAME, "").takeIf { !it.isNullOrEmpty() } ?: throw IllegalStateException("Device ID is null or empty")
+            val deviceID = prefs.getString(Constants.DEVICE_ID_NAME, "").takeIf { !it.isNullOrEmpty() }
+                ?: error("Device ID is null or empty")
             val metadata = EventMetadataDto(deviceID)
             val dto: EventDto = EventDto.SmsReceive(metadata, address, subject, status, body, date)
             context.broadcastEvent(prefs, dto)

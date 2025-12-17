@@ -49,7 +49,8 @@ fun Context.sendMessageCompat(
     messageId: Long? = null
 ) {
     val prefs = this.getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE)
-    val deviceID = prefs.getString(Constants.DEVICE_ID_NAME, "").takeIf { !it.isNullOrEmpty() } ?: throw IllegalStateException("Device ID is null or empty")
+    val deviceID = prefs.getString(Constants.DEVICE_ID_NAME, "").takeIf { !it.isNullOrEmpty() }
+        ?: error("Device ID is null or empty")
     val metadata = EventMetadataDto(deviceID)
     val dto: EventDto = EventDto.SmsSend(metadata, text, addresses, subId, attachments.map { attachment -> attachment.toDto() }, messageId)
     broadcastEvent(prefs, dto)

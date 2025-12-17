@@ -53,7 +53,7 @@ class EventConsumerService : Service() {
             val isEnabled = prefs.getBoolean(MirrorSettingsView.Companion.ENABLE_NAME, false)
             val subscribedTopic = prefs.getString(MirrorSettingsView.Companion.TOPIC_NAME, "")
             val deviceID = prefs.getString(Constants.DEVICE_ID_NAME, "").takeIf { !it.isNullOrEmpty() }
-                ?: throw IllegalStateException("Device ID is null or empty")
+                ?: error("Device ID is null or empty")
             val topic = intent.getStringExtra(ForwardingSmsReceiver.Companion.NTFY_TOPIC)
 
             if (!isEnabled || topic != subscribedTopic)
