@@ -51,7 +51,7 @@ class ForwardingSmsReceiver(private val wrappedReceiver: SmsReceiver = SmsReceiv
                 ?: error("Device ID is null or empty")
             val metadata = EventMetadataDto(deviceID)
             val dto: EventDto = EventDto.SmsReceive(metadata, address, subject, status, body, date)
-            context.broadcastEvent(prefs, dto)
+            context.broadcastEvent(dto)
         }
     }
 }

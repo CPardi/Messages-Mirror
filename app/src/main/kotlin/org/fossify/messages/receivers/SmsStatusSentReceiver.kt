@@ -21,7 +21,7 @@ import org.fossify.messages.helpers.refreshConversations
 import org.fossify.messages.helpers.refreshMessages
 
 /** Handles updating databases and states when a SMS message is sent. */
-class SmsStatusSentReceiver : SendStatusReceiver() {
+class SmsStatusSentReceiver : ForwardingSendStatusReceiver() {
 
     override fun updateAndroidDatabase(context: Context, intent: Intent, receiverResultCode: Int) {
         val messageUri: Uri? = intent.data
