@@ -75,10 +75,6 @@ While the Messages Mirror app provides core functionality for SMS mirroring, som
 | Direct Reply (`DirectReplyReceiver`)                | Not implemented | Inline reply handling is not mirrored.        |
 | Mark as Read (`MarkAsReadReceiver`)                 | Not implemented | Read status updates are not mirrored.         |
 
-### Sending SMS Messages
-
-Currently, **sending SMS messages is performed directly from the Mirror device**. This means that while incoming messages are mirrored from the Host device, outgoing messages are sent by the Mirror device itself. Effectively meaning that sending SMS messages if not supported if the mirror device does not contain a SIM card. Future updates may introduce options to route outgoing messages through the Host device for full mirroring functionality.
-
 ## Troubleshooting
 
 - **Messages not appearing?**  

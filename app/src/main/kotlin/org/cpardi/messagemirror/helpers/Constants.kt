@@ -1,3 +1,7 @@
 package org.cpardi.messagemirror.helpers
 
-const val SETTINGS_NAME = "org.cpardi.messagemirror"
+object Constants {
+    const val SETTINGS_NAME = "org.cpardi.messagemirror"
+    const val MODE_NAME = "mode"
+    const val DEVICE_ID_NAME = "device_id"
+}
