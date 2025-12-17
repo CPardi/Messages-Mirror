@@ -2,6 +2,7 @@ package org.fossify.messages.activities
 
 import android.annotation.SuppressLint
 import android.app.role.RoleManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
@@ -11,10 +12,7 @@ import android.os.Bundle
 import android.provider.Telephony
 import android.text.TextUtils
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequest
-import androidx.work.WorkManager
+import org.cpardi.messagemirror.helpers.Constants
 import org.cpardi.messagemirror.services.ServiceManager
 import org.fossify.commons.dialogs.PermissionRequiredDialog
 import org.fossify.commons.extensions.adjustAlpha
@@ -78,6 +76,7 @@ import org.fossify.messages.models.SearchResult
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import java.util.UUID
 
 class MainActivity : SimpleActivity() {
     override var isSearchBarEnabled = true
@@ -290,10 +289,16 @@ class MainActivity : SimpleActivity() {
             launchNewConversation()
         }
 
-        startNtfySmsService()
+        initMessagesMirror()
     }
 
-    private fun startNtfySmsService() {
+    private fun initMessagesMirror() {
+        val preferences = application.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE)
+        if(!preferences.contains(Constants.DEVICE_ID_NAME)) {
+            val uniqueID = UUID.randomUUID().toString()
+            preferences.edit().putString(Constants.DEVICE_ID_NAME, uniqueID).apply()
+        }
+
         ServiceManager(applicationContext).refresh();
     }
 

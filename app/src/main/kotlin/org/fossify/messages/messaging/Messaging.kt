@@ -1,10 +1,16 @@
 package org.fossify.messages.messaging
 
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.telephony.SmsMessage
 import android.util.Patterns
 import android.widget.Toast.LENGTH_LONG
 import com.klinker.android.send_message.Settings
+import org.cpardi.messagemirror.extensions.broadcastEvent
+import org.cpardi.messagemirror.helpers.Constants
+import org.cpardi.messagemirror.models.EventDto
+import org.cpardi.messagemirror.models.EventMetadataDto
+import org.cpardi.messagemirror.models.toDto
 import org.fossify.commons.extensions.showErrorToast
 import org.fossify.commons.extensions.toast
 import org.fossify.commons.helpers.ensureBackgroundThread
@@ -35,8 +41,23 @@ fun Context.isLongMmsMessage(text: String, settings: Settings = getSendMessageSe
     return numPages > settings.sendLongAsMmsAfter && settings.sendLongAsMms
 }
 
-/** Sends the message using the in-app SmsManager API wrappers if it's an SMS or using android-smsmms for MMS. */
 fun Context.sendMessageCompat(
+    text: String,
+    addresses: List<String>,
+    subId: Int?,
+    attachments: List<Attachment>,
+    messageId: Long? = null
+) {
+    val prefs = this.getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE)
+    val deviceID = prefs.getString(Constants.DEVICE_ID_NAME, "").takeIf { !it.isNullOrEmpty() } ?: throw IllegalStateException("Device ID is null or empty")
+    val metadata = EventMetadataDto(deviceID)
+    val dto: EventDto = EventDto.SmsSend(metadata, text, addresses, subId, attachments.map { attachment -> attachment.toDto() }, messageId)
+    broadcastEvent(prefs, dto)
+    sendMessageOnDeviceCompat(text, addresses, subId, attachments, messageId)
+}
+
+/** Sends the message using the in-app SmsManager API wrappers if it's an SMS or using android-smsmms for MMS. */
+fun Context.sendMessageOnDeviceCompat(
     text: String,
     addresses: List<String>,
     subId: Int?,

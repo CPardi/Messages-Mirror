@@ -4,14 +4,13 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
-import android.util.Base64
-import org.cpardi.messagemirror.helpers.CryptoHelper
-import org.cpardi.messagemirror.helpers.SETTINGS_NAME
+import org.cpardi.messagemirror.extensions.broadcastEvent
+import org.cpardi.messagemirror.helpers.Constants
 import org.cpardi.messagemirror.models.EventDto
+import org.cpardi.messagemirror.models.EventMetadataDto
 import org.cpardi.messagemirror.views.MirrorSettingsView
 import org.fossify.commons.helpers.ensureBackgroundThread
 import org.fossify.messages.receivers.SmsReceiver
-import javax.crypto.spec.SecretKeySpec
 
 class ForwardingSmsReceiver(private val wrappedReceiver: SmsReceiver = SmsReceiver()) :
     BroadcastReceiver() {
@@ -27,13 +26,10 @@ class ForwardingSmsReceiver(private val wrappedReceiver: SmsReceiver = SmsReceiv
         if (intent.action != SMS_DELIVER_ACTION) return
 
         wrappedReceiver.onReceive(context, intent)
+        val prefs = context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE)
+        val isEnabled = prefs.getBoolean(MirrorSettingsView.ENABLE_NAME, false)
 
-        val prefs = context.getSharedPreferences(SETTINGS_NAME, Context.MODE_PRIVATE)
-         val isEnabled = prefs.getBoolean(MirrorSettingsView.ENABLE_NAME, false)
-        val mode = MirrorSettingsView.DeviceMode.fromInt(prefs.getInt(MirrorSettingsView.MODE_NAME, MirrorSettingsView.DeviceMode.SmsHost.value))
-        val topic = prefs.getString(MirrorSettingsView.TOPIC_NAME, "")
-
-        if (!isEnabled || mode != MirrorSettingsView.DeviceMode.SmsHost) return
+        if (!isEnabled) return
 
         val messages = Telephony.Sms.Intents.getMessagesFromIntent(intent)
         var address = ""
@@ -51,20 +47,10 @@ class ForwardingSmsReceiver(private val wrappedReceiver: SmsReceiver = SmsReceiv
                 date = System.currentTimeMillis()
             }
 
-            val dto: EventDto = EventDto.SmsReceive(address, subject, status, body, date)
-            val message = EventDto.Serializer.encodeToString(dto)
-
-            val keyBase64 = prefs.getString(MirrorSettingsView.ENCRYPTION_KEY_NAME, null)
-            val keyBytes = Base64.decode(keyBase64, Base64.NO_WRAP)
-            val key = SecretKeySpec(keyBytes, CryptoHelper.ALGORITHM)
-
-            val encryptedMessage = CryptoHelper.encrypt(message, key)
-
-            val ntfyIntent = Intent(NTFY_SEND_MESSAGE_ACTION)
-            ntfyIntent.setPackage(NTFY_PACKAGE)
-            ntfyIntent.putExtra(NTFY_TOPIC, topic)
-            ntfyIntent.putExtra(NTFY_MESSAGE, encryptedMessage)
-            context.sendBroadcast(ntfyIntent)
+            val deviceID = prefs.getString(Constants.DEVICE_ID_NAME, "").takeIf { !it.isNullOrEmpty() } ?: throw IllegalStateException("Device ID is null or empty")
+            val metadata = EventMetadataDto(deviceID)
+            val dto: EventDto = EventDto.SmsReceive(metadata, address, subject, status, body, date)
+            context.broadcastEvent(prefs, dto)
         }
     }
 }

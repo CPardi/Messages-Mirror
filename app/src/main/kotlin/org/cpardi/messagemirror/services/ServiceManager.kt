@@ -27,7 +27,7 @@ class ServiceManager(private val context: Context) {
             }
 
             withContext(Dispatchers.IO) {
-                Intent(context, NtfySmsReceiverService::class.java).also {
+                Intent(context, EventConsumerService::class.java).also {
                     ContextCompat.startForegroundService(context, it)
                 }
             }
