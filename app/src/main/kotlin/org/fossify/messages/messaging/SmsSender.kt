@@ -2,9 +2,12 @@ package org.fossify.messages.messaging
 
 import android.app.Application
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.telephony.PhoneNumberUtils
+import org.cpardi.messagemirror.helpers.Constants
+import org.cpardi.messagemirror.models.DeviceMode
 import org.fossify.commons.helpers.isSPlus
 import org.fossify.messages.messaging.SmsException.Companion.EMPTY_DESTINATION_ADDRESS
 import org.fossify.messages.messaging.SmsException.Companion.ERROR_SENDING_MESSAGE
@@ -13,13 +16,15 @@ import org.fossify.messages.receivers.SmsStatusDeliveredReceiver
 import org.fossify.messages.receivers.SmsStatusSentReceiver
 
 /** Class that sends chat message via SMS. */
-class SmsSender(val app: Application) {
+class SmsSender(val app: Application): ISmsSender {
 
     // not sure what to do about this yet. this is the default as per android-smsmms
     private val sendMultipartSmsAsSeparateMessages = false
 
+    override val forMode = DeviceMode.Mirror
+
     // This should be called from a RequestWriter queue thread
-    fun sendMessage(
+    override fun sendMessage(
         subId: Int, destination: String, body: String, serviceCenter: String?,
         requireDeliveryReport: Boolean, messageUri: Uri
     ) {
@@ -122,10 +127,17 @@ class SmsSender(val app: Application) {
     }
 
     companion object {
-        private var instance: SmsSender? = null
-        fun getInstance(app: Application): SmsSender {
-            if (instance == null) {
-                instance = SmsSender(app)
+        private var instance: ISmsSender? = null
+        fun getInstance(app: Application): ISmsSender {
+            val mode = app.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE).getInt(Constants.MODE_NAME, -1)
+            val deviceMode = DeviceMode.fromInt(mode)
+
+            if (deviceMode != instance?.forMode) {
+                instance = when(deviceMode) {
+                    DeviceMode.SmsHost -> SmsSender(app)
+                    DeviceMode.Mirror -> NullSmsSender()
+                    else -> throw NoWhenBranchMatchedException("Device mode case isn't implemented")
+                }
             }
             return instance!!
         }

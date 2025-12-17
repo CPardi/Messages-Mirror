@@ -20,7 +20,8 @@ import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
 import org.cpardi.messagemirror.helpers.CryptoHelper
 import org.cpardi.messagemirror.dialogs.ShareMirrorSettingsDialog
-import org.cpardi.messagemirror.helpers.SETTINGS_NAME
+import org.cpardi.messagemirror.helpers.Constants
+import org.cpardi.messagemirror.models.DeviceMode
 import org.cpardi.messagemirror.receivers.ForwardingSmsReceiver
 import org.fossify.commons.compose.extensions.getActivity
 import org.fossify.commons.dialogs.RadioGroupDialog
@@ -41,30 +42,14 @@ class MirrorSettingsView @JvmOverloads constructor(
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
     private val binding = ViewMirrorSettingsBinding.inflate(LayoutInflater.from(context), this)
-    private val prefs: SharedPreferences = context.getSharedPreferences(SETTINGS_NAME, Context.MODE_PRIVATE)
+    private val prefs: SharedPreferences = context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE)
     private val editPrefs: SharedPreferences.Editor = prefs.edit()
     private val barcodeLauncher = (context as? ComponentActivity)?.registerForActivityResult(ScanContract()) { result -> handleBarcodeContent(result, context) }
 
     companion object {
-        const val MODE_NAME = "mode"
         const val ENABLE_NAME = "mirror_enabled"
         const val TOPIC_NAME = "topic_name"
         const val ENCRYPTION_KEY_NAME = "encryption_key"
-    }
-
-    enum class DeviceMode(val value: Int) {
-        SmsHost(1),
-        Mirror(2);
-
-        fun description(): String = when (this) {
-            SmsHost -> "SMS Host"
-            Mirror -> "Mirror"
-        }
-
-        companion object {
-            fun fromInt(value: Int): DeviceMode = entries.find { it.value == value }
-                ?: throw IllegalArgumentException("Invalid Mode value: $value")
-        }
     }
 
     init {
@@ -119,16 +104,16 @@ class MirrorSettingsView @JvmOverloads constructor(
     }
 
     private fun setupDeviceMode() = binding.apply {
-        val currentMode = DeviceMode.fromInt(prefs.getInt(MODE_NAME, DeviceMode.SmsHost.value))
+        val currentMode = DeviceMode.fromInt(prefs.getInt(Constants.MODE_NAME, DeviceMode.SmsHost.value))
         mirrorSettingsMode.text = currentMode.description()
 
         mirrorSettingsModeHolder.setOnClickListener {
             val items = DeviceMode.entries.map { id -> RadioItem(id.value, id.description()) }.toArrayList()
-            val currentMode = DeviceMode.fromInt(prefs.getInt(MODE_NAME, DeviceMode.SmsHost.value))
+            val currentMode = DeviceMode.fromInt(prefs.getInt(Constants.MODE_NAME, DeviceMode.SmsHost.value))
             RadioGroupDialog(context.getActivity(), items, currentMode.value) { selected ->
                 val mode = DeviceMode.fromInt(selected as Int)
                 mirrorSettingsMode.text = mode.description()
-                editPrefs.putInt(MODE_NAME, selected).apply()
+                editPrefs.putInt(Constants.MODE_NAME, selected).apply()
             }
         }
     }

@@ -193,7 +193,7 @@
 
         <!-- org.cpardi.messagemirror  -->
         <service
-            android:name="org.cpardi.messagemirror.services.NtfySmsReceiverService"
+            android:name="org.cpardi.messagemirror.services.EventConsumerService"
             android:foregroundServiceType="specialUse">
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
@@ -201,7 +201,7 @@
         </service>
 
         <receiver
-            android:name="org.cpardi.messagemirror.services.NtfySmsReceiverService$BootStartReceiver"
+            android:name="org.cpardi.messagemirror.services.EventConsumerService$BootStartReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -211,7 +211,7 @@
         </receiver>
 
         <receiver
-            android:name="org.cpardi.messagemirror.services.NtfySmsReceiverService$AutoRestartReceiver"
+            android:name="org.cpardi.messagemirror.services.EventConsumerService$AutoRestartReceiver"
             android:enabled="true"
             android:exported="false"/>
 

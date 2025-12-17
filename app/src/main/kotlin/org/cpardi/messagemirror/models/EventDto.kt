@@ -11,11 +11,25 @@ import kotlinx.serialization.modules.subclass
 sealed class EventDto {
     /** Represents when an SMS message is received by the SMS host */
     @Serializable
-    data class SmsReceive(val address: String, val subject: String, val status: Int, val body: String, val date: Long) : EventDto()
+    data class SmsReceive(
+        val metadata: EventMetadataDto,
+        val address: String,
+        val subject: String,
+        val status: Int,
+        val body: String,
+        val date: Long
+    ) : EventDto()
 
-    /** Represents when an SMS message is send by a Mirror */
+    /** Represents when an SMS message is sent by a Mirror */
     @Serializable
-    data class SmsSend(val addresses: List<String>, val subject: String, val status: Int, val body: String, val date: Long) : EventDto()
+    data class SmsSend(
+        val metadata: EventMetadataDto,
+        val text: String,
+        val addresses: List<String>,
+        val subId: Int?,
+        val attachments: List<AttachmentDto>,
+        val messageId: Long?
+    ) : EventDto()
 
     companion object {
         /** Enables polymorphic serialisation for this class */
