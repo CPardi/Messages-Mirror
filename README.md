@@ -67,9 +67,6 @@ While the Messages Mirror app provides core functionality for SMS mirroring, som
 | Operation                                           | Status          | Notes                                         |
 |-----------------------------------------------------|-----------------|-----------------------------------------------|
 | MMS Receiving (`MmsReceiver`)                       | Not implemented | MMS messages are not yet mirrored.            |
-| SMS Sent Status (`SmsStatusSentReceiver`)           | Not implemented | Sent message status updates are not mirrored. |
-| SMS Delivered Status (`SmsStatusDeliveredReceiver`) | Not implemented | Delivery reports are not mirrored.            |
-| MMS Sent Status (`MmsSentReceiver`)                 | Not implemented | MMS sent status updates are not mirrored.     |
 | Scheduled Messages (`ScheduledMessageReceiver`)     | Not implemented | Scheduled message sending is not mirrored.    |
 | Message Deletion (`DeleteSmsReceiver`)              | Not implemented | Message deletions are not mirrored.           |
 | Direct Reply (`DirectReplyReceiver`)                | Not implemented | Inline reply handling is not mirrored.        |
