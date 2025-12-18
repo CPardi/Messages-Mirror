@@ -31,6 +31,13 @@ sealed class EventDto {
         val messageId: Long?
     ) : EventDto()
 
+    /** Represents when an SMS message is sent by a Mirror */
+    @Serializable
+    data class SmsSendStatus(
+        val metadata: EventMetadataDto,
+        val intentParcel: List<Byte>
+    ) : EventDto()
+
     companion object {
         /** Enables polymorphic serialisation for this class */
         val Serializer: Json
@@ -39,6 +46,7 @@ sealed class EventDto {
                     polymorphic(EventDto::class) {
                         subclass(SmsReceive::class)
                         subclass(SmsSend::class)
+                        subclass(SmsSendStatus::class)
                     }
                 }
                 classDiscriminator = "type"

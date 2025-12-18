@@ -53,7 +53,7 @@ fun Context.sendMessageCompat(
         ?: error("Device ID is null or empty")
     val metadata = EventMetadataDto(deviceID)
     val dto: EventDto = EventDto.SmsSend(metadata, text, addresses, subId, attachments.map { attachment -> attachment.toDto() }, messageId)
-    broadcastEvent(prefs, dto)
+    broadcastEvent(dto)
     sendMessageOnDeviceCompat(text, addresses, subId, attachments, messageId)
 }
 

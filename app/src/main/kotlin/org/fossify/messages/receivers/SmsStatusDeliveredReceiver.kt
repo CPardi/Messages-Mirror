@@ -12,7 +12,7 @@ import org.fossify.messages.extensions.messagingUtils
 import org.fossify.messages.helpers.refreshMessages
 
 /** Handles updating databases and states when a sent SMS message is delivered. */
-class SmsStatusDeliveredReceiver : SendStatusReceiver() {
+class SmsStatusDeliveredReceiver : ForwardingSendStatusReceiver() {
 
     private var status: Int = Sms.Sent.STATUS_NONE
 
