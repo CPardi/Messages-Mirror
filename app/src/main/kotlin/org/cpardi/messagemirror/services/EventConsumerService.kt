@@ -19,6 +19,7 @@ import org.cpardi.messagemirror.helpers.CryptoHelper
 import org.cpardi.messagemirror.helpers.Constants
 import org.cpardi.messagemirror.helpers.SmsReceiveHandler
 import org.cpardi.messagemirror.helpers.SmsSendHandler
+import org.cpardi.messagemirror.helpers.SmsSendStatusHandler
 import org.cpardi.messagemirror.models.EventDto
 import org.cpardi.messagemirror.receivers.ForwardingSmsReceiver
 import org.cpardi.messagemirror.views.MirrorSettingsView
@@ -86,6 +87,7 @@ class EventConsumerService : Service() {
             when (dto) {
                 is EventDto.SmsReceive -> SmsReceiveHandler(deviceID).handle(subscriptionId, context, dto)
                 is EventDto.SmsSend -> SmsSendHandler(deviceID).handle(context, dto)
+                is EventDto.SmsSendStatus -> SmsSendStatusHandler(deviceID).handle(context, dto)
                 else -> return
             }
         }

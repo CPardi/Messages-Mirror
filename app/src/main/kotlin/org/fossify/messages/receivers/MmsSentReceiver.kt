@@ -17,7 +17,7 @@ import org.fossify.messages.helpers.refreshMessages
 import java.io.File
 
 /** Handles updating databases and states when a MMS message is sent. */
-class MmsSentReceiver : SendStatusReceiver() {
+class MmsSentReceiver : ForwardingSendStatusReceiver() {
 
     override fun updateAndroidDatabase(context: Context, intent: Intent, receiverResultCode: Int) {
         val uri = Uri.parse(intent.getStringExtra(EXTRA_CONTENT_URI))
