@@ -82,10 +82,9 @@ class EventConsumerService : Service() {
                 }
             }
 
-            val subscriptionId = intent.getIntExtra("subscription", -1)
             val dto = EventDto.Companion.Serializer.decodeFromString<EventDto>(decryptedMessage)
             when (dto) {
-                is EventDto.SmsReceive -> SmsReceiveHandler(deviceID).handle(subscriptionId, context, dto)
+                is EventDto.SmsReceive -> SmsReceiveHandler(deviceID).handle(context, dto)
                 is EventDto.SmsSend -> SmsSendHandler(deviceID).handle(context, dto)
                 is EventDto.SmsSendStatus -> SmsSendStatusHandler(deviceID).handle(context, dto)
                 else -> return

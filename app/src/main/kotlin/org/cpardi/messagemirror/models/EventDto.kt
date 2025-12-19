@@ -13,11 +13,7 @@ sealed class EventDto {
     @Serializable
     data class SmsReceive(
         val metadata: EventMetadataDto,
-        val address: String,
-        val subject: String,
-        val status: Int,
-        val body: String,
-        val date: Long
+        val intentBytes: List<Byte>
     ) : EventDto()
 
     /** Represents when an SMS message is sent by a Mirror */
