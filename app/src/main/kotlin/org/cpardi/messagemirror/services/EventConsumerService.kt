@@ -15,14 +15,13 @@ import android.util.Base64
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
-import org.cpardi.messagemirror.helpers.CryptoHelper
+import org.cpardi.messagemirror.extensions.mirrorConfig
 import org.cpardi.messagemirror.helpers.Constants
+import org.cpardi.messagemirror.helpers.CryptoHelper
 import org.cpardi.messagemirror.helpers.SmsReceiveHandler
 import org.cpardi.messagemirror.helpers.SmsSendHandler
 import org.cpardi.messagemirror.helpers.SmsSendStatusHandler
 import org.cpardi.messagemirror.models.EventDto
-import org.cpardi.messagemirror.receivers.ForwardingSmsReceiver
-import org.cpardi.messagemirror.views.MirrorSettingsView
 import org.fossify.commons.extensions.showErrorToast
 import org.fossify.messages.R
 import org.fossify.messages.activities.MainActivity
@@ -31,10 +30,6 @@ import javax.crypto.IllegalBlockSizeException
 import javax.crypto.spec.SecretKeySpec
 
 class EventConsumerService : Service() {
-
-    companion object {
-        const val NTFY_RECEIVE_MESSAGE_ACTION = "io.heckel.ntfy.MESSAGE_RECEIVED"
-    }
 
     class BootStartReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -50,21 +45,16 @@ class EventConsumerService : Service() {
 
     private val eventReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val prefs = context.getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE)
-            val isEnabled = prefs.getBoolean(MirrorSettingsView.Companion.ENABLE_NAME, false)
-            val subscribedTopic = prefs.getString(MirrorSettingsView.Companion.TOPIC_NAME, "")
-            val deviceID = prefs.getString(Constants.DEVICE_ID_NAME, "").takeIf { !it.isNullOrEmpty() }
-                ?: error("Device ID is null or empty")
-            val topic = intent.getStringExtra(ForwardingSmsReceiver.Companion.NTFY_TOPIC)
+            val config = context.mirrorConfig
+            val topic = intent.getStringExtra(Constants.NTFY_TOPIC)
 
-            if (!isEnabled || topic != subscribedTopic)
+            if (!config.enabled || topic != config.topic)
                 return
 
-            val keyBase64 = prefs.getString(MirrorSettingsView.Companion.ENCRYPTION_KEY_NAME, null)
-            val keyBytes = Base64.decode(keyBase64, Base64.NO_WRAP)
+            val keyBytes = Base64.decode(config.encryptionKey, Base64.NO_WRAP)
             val key = SecretKeySpec(keyBytes, CryptoHelper.ALGORITHM)
 
-            val encryptedMessage = intent.getStringExtra(ForwardingSmsReceiver.Companion.NTFY_MESSAGE) ?: return
+            val encryptedMessage = intent.getStringExtra(Constants.NTFY_MESSAGE) ?: return
             var decryptedMessage = ""
             try {
                 decryptedMessage = CryptoHelper.decrypt(encryptedMessage, key)
@@ -82,6 +72,7 @@ class EventConsumerService : Service() {
                 }
             }
 
+            val deviceID = config.deviceID
             val dto = EventDto.Companion.Serializer.decodeFromString<EventDto>(decryptedMessage)
             when (dto) {
                 is EventDto.SmsReceive -> SmsReceiveHandler(deviceID).handle(context, dto)
@@ -94,7 +85,7 @@ class EventConsumerService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        val filter = IntentFilter(NTFY_RECEIVE_MESSAGE_ACTION)
+        val filter = IntentFilter(Constants.NTFY_RECEIVE_MESSAGE_ACTION)
         ContextCompat.registerReceiver(this, eventReceiver, filter, ContextCompat.RECEIVER_EXPORTED)
 
         val channelId = "messagesMirror-subscriber"
@@ -111,7 +102,6 @@ class EventConsumerService : Service() {
             .setOngoing(true)
             .setGroup(notificationGroupId)
             .build()
-
 
         val channelName = "Messages Mirror active"
         val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW).let {

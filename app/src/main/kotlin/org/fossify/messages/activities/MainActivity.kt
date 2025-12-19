@@ -293,12 +293,6 @@ class MainActivity : SimpleActivity() {
     }
 
     private fun initMessagesMirror() {
-        val preferences = application.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE)
-        if(!preferences.contains(Constants.DEVICE_ID_NAME)) {
-            val uniqueID = UUID.randomUUID().toString()
-            preferences.edit().putString(Constants.DEVICE_ID_NAME, uniqueID).apply()
-        }
-
         ServiceManager(applicationContext).refresh();
     }
 

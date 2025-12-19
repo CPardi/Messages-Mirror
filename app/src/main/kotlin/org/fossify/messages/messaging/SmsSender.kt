@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.telephony.PhoneNumberUtils
+import org.cpardi.messagemirror.extensions.mirrorConfig
 import org.cpardi.messagemirror.helpers.Constants
 import org.cpardi.messagemirror.models.DeviceMode
 import org.fossify.commons.helpers.isSPlus
@@ -129,11 +130,10 @@ class SmsSender(val app: Application): ISmsSender {
     companion object {
         private var instance: ISmsSender? = null
         fun getInstance(app: Application): ISmsSender {
-            val mode = app.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE).getInt(Constants.MODE_NAME, -1)
-            val deviceMode = DeviceMode.fromInt(mode)
+            val mode = app.mirrorConfig.mode
 
-            if (deviceMode != instance?.forMode) {
-                instance = when(deviceMode) {
+            if (mode != instance?.forMode) {
+                instance = when(mode) {
                     DeviceMode.SmsHost -> SmsSender(app)
                     DeviceMode.Mirror -> NullSmsSender()
                     else -> throw NoWhenBranchMatchedException("Device mode case isn't implemented")

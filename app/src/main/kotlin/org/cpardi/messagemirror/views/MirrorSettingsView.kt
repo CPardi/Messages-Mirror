@@ -3,7 +3,6 @@ package org.cpardi.messagemirror.views
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.SharedPreferences
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
@@ -20,9 +19,10 @@ import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
 import org.cpardi.messagemirror.helpers.CryptoHelper
 import org.cpardi.messagemirror.dialogs.ShareMirrorSettingsDialog
+import org.cpardi.messagemirror.extensions.mirrorConfig
 import org.cpardi.messagemirror.helpers.Constants
+import org.cpardi.messagemirror.helpers.MirrorConfig
 import org.cpardi.messagemirror.models.DeviceMode
-import org.cpardi.messagemirror.receivers.ForwardingSmsReceiver
 import org.fossify.commons.compose.extensions.getActivity
 import org.fossify.commons.dialogs.RadioGroupDialog
 import org.fossify.commons.extensions.applyColorFilter
@@ -42,15 +42,8 @@ class MirrorSettingsView @JvmOverloads constructor(
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
     private val binding = ViewMirrorSettingsBinding.inflate(LayoutInflater.from(context), this)
-    private val prefs: SharedPreferences = context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE)
-    private val editPrefs: SharedPreferences.Editor = prefs.edit()
+    private val config: MirrorConfig = context.mirrorConfig
     private val barcodeLauncher = (context as? ComponentActivity)?.registerForActivityResult(ScanContract()) { result -> handleBarcodeContent(result, context) }
-
-    companion object {
-        const val ENABLE_NAME = "mirror_enabled"
-        const val TOPIC_NAME = "topic_name"
-        const val ENCRYPTION_KEY_NAME = "encryption_key"
-    }
 
     init {
         (context as? LifecycleOwner)?.lifecycle?.addObserver(object : DefaultLifecycleObserver {
@@ -91,41 +84,41 @@ class MirrorSettingsView @JvmOverloads constructor(
     }
 
     private fun setupEnableMirrorSwitch() = binding.apply {
-        val isEnabled = prefs.getBoolean(ENABLE_NAME, false)
-        mirrorSettingsEnable.isChecked = isEnabled
-        setSettingsEnabled(isEnabled)
+        val enabled = config.enabled
+        mirrorSettingsEnable.isChecked = enabled
+        setSettingsEnabled(enabled)
 
         mirrorSettingsEnableHolder.setOnClickListener {
             mirrorSettingsEnable.toggle()
             val isChecked = mirrorSettingsEnable.isChecked
             setSettingsEnabled(isChecked)
-            editPrefs.putBoolean(ENABLE_NAME, isChecked).apply()
+            config.enabled = isChecked
         }
     }
 
     private fun setupDeviceMode() = binding.apply {
-        val currentMode = DeviceMode.fromInt(prefs.getInt(Constants.MODE_NAME, DeviceMode.SmsHost.value))
+        val currentMode = config.mode
         mirrorSettingsMode.text = currentMode.description()
 
         mirrorSettingsModeHolder.setOnClickListener {
             val items = DeviceMode.entries.map { id -> RadioItem(id.value, id.description()) }.toArrayList()
-            val currentMode = DeviceMode.fromInt(prefs.getInt(Constants.MODE_NAME, DeviceMode.SmsHost.value))
+            val currentMode = config.mode
             RadioGroupDialog(context.getActivity(), items, currentMode.value) { selected ->
                 val mode = DeviceMode.fromInt(selected as Int)
                 mirrorSettingsMode.text = mode.description()
-                editPrefs.putInt(Constants.MODE_NAME, selected).apply()
+                config.mode = mode
             }
         }
     }
 
     private fun setupTopic() = binding.apply {
-        mirrorSettingsTopicEdittext.setText(prefs.getString(TOPIC_NAME, "") ?: "")
+        mirrorSettingsTopicEdittext.setText(config.topic)
 
         mirrorSettingsTopicEdittext.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { // This is intentionally empty
             }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                editPrefs.putString(TOPIC_NAME, s?.toString() ?: "").apply()
+                config.topic = s?.toString() ?: ""
             }
             override fun afterTextChanged(s: Editable?) { // This is intentionally empty
             }
@@ -150,13 +143,13 @@ class MirrorSettingsView @JvmOverloads constructor(
     }
 
     private fun setupEncryptionKey() = binding.apply {
-        mirrorSettingsKeyEdittext.setText(prefs.getString(ENCRYPTION_KEY_NAME, "") ?: "")
+        mirrorSettingsKeyEdittext.setText(config.encryptionKey)
 
         mirrorSettingsKeyEdittext.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { // This is intentionally empty
             }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                editPrefs.putString(ENCRYPTION_KEY_NAME, s?.toString() ?: "").apply()
+                config.encryptionKey = s?.toString() ?: ""
             }
             override fun afterTextChanged(s: Editable?) { // This is intentionally empty
             }
@@ -183,9 +176,7 @@ class MirrorSettingsView @JvmOverloads constructor(
 
     private fun setupShare() = binding.apply {
         mirrorSettingsShareHolder.setOnClickListener {
-            val topic = prefs.getString(TOPIC_NAME, "") ?: ""
-            val key = prefs.getString(ENCRYPTION_KEY_NAME, "") ?: ""
-            ShareMirrorSettingsDialog(context, "$topic;$key")
+            ShareMirrorSettingsDialog(context, "${config.topic};${config.encryptionKey}")
         }
     }
 
@@ -227,7 +218,7 @@ class MirrorSettingsView @JvmOverloads constructor(
         mirrorSettingsEnable.isChecked = isEnabled
         mirrorSettingsControlsHolder.isEnabled = isEnabled
         mirrorSettingsControlsHolder.isVisible = isEnabled
-        mirrorSettingsNtfyWarning.isVisible = !context.isPackageInstalled(ForwardingSmsReceiver.NTFY_PACKAGE)
+        mirrorSettingsNtfyWarning.isVisible = !context.isPackageInstalled(Constants.NTFY_PACKAGE)
     }
 
     private fun generateRandomPassword(length: Int): String {
