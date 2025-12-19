@@ -3,6 +3,7 @@ package org.cpardi.messagemirror.extensions
 import android.content.Context
 import android.content.Intent
 import android.util.Base64
+import android.util.Log
 import org.cpardi.messagemirror.helpers.Constants
 import org.cpardi.messagemirror.helpers.CryptoHelper
 import org.cpardi.messagemirror.models.EventDto
@@ -13,6 +14,7 @@ import org.cpardi.messagemirror.receivers.ForwardingSmsReceiver.Companion.NTFY_T
 import org.cpardi.messagemirror.views.MirrorSettingsView
 import org.fossify.commons.helpers.ensureBackgroundThread
 import javax.crypto.spec.SecretKeySpec
+import kotlin.math.log
 
 fun Context.broadcastEvent(dto: EventDto) {
     val prefs = this.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE)
