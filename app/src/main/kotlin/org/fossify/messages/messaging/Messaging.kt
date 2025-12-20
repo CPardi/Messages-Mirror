@@ -7,6 +7,7 @@ import android.util.Patterns
 import android.widget.Toast.LENGTH_LONG
 import com.klinker.android.send_message.Settings
 import org.cpardi.messagemirror.extensions.broadcastEvent
+import org.cpardi.messagemirror.extensions.mirrorConfig
 import org.cpardi.messagemirror.helpers.Constants
 import org.cpardi.messagemirror.models.EventDto
 import org.cpardi.messagemirror.models.EventMetadataDto
@@ -48,10 +49,8 @@ fun Context.sendMessageCompat(
     attachments: List<Attachment>,
     messageId: Long? = null
 ) {
-    val prefs = this.getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE)
-    val deviceID = prefs.getString(Constants.DEVICE_ID_NAME, "").takeIf { !it.isNullOrEmpty() }
-        ?: error("Device ID is null or empty")
-    val metadata = EventMetadataDto(deviceID)
+    val config = this.mirrorConfig
+    val metadata = EventMetadataDto(config.deviceID)
     val dto: EventDto = EventDto.SmsSend(metadata, text, addresses, subId, attachments.map { attachment -> attachment.toDto() }, messageId)
     broadcastEvent(dto)
     sendMessageOnDeviceCompat(text, addresses, subId, attachments, messageId)
