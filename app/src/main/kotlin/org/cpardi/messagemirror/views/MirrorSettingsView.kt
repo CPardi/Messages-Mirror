@@ -218,7 +218,7 @@ class MirrorSettingsView @JvmOverloads constructor(
         mirrorSettingsEnable.isChecked = isEnabled
         mirrorSettingsControlsHolder.isEnabled = isEnabled
         mirrorSettingsControlsHolder.isVisible = isEnabled
-        mirrorSettingsNtfyWarning.isVisible = !context.isPackageInstalled(Constants.NTFY_PACKAGE)
+        mirrorSettingsNtfyWarning.isVisible = !context.isPackageInstalled(Constants.PACKAGE_NTFY)
     }
 
     private fun generateRandomPassword(length: Int): String {

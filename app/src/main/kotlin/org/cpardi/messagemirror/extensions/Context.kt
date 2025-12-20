@@ -22,10 +22,10 @@ fun Context.broadcastEvent(dto: EventDto) {
         val message = EventDto.Serializer.encodeToString(dto)
         val encryptedMessage = CryptoHelper.encrypt(message, key)
 
-        val ntfyIntent = Intent(Constants.NTFY_SEND_MESSAGE_ACTION)
-        ntfyIntent.setPackage(Constants.NTFY_PACKAGE)
-        ntfyIntent.putExtra(Constants.NTFY_TOPIC, config.topic)
-        ntfyIntent.putExtra(Constants.NTFY_MESSAGE, encryptedMessage)
+        val ntfyIntent = Intent(Constants.ACTION_NTFY_SEND_MESSAGE)
+        ntfyIntent.setPackage(Constants.PACKAGE_NTFY)
+        ntfyIntent.putExtra(Constants.INTENT_NTFY_TOPIC, config.topic)
+        ntfyIntent.putExtra(Constants.INTENT_NTFY_MESSAGE, encryptedMessage)
         this.sendBroadcast(ntfyIntent)
     }
 }

@@ -16,7 +16,7 @@ class ForwardingSmsReceiver(private val wrappedReceiver: SmsReceiver = SmsReceiv
     BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action != Constants.SMS_DELIVER_ACTION) return
+        if (intent.action != Constants.ACTION_SMS_DELIVER) return
 
         val config = context.mirrorConfig
         val intentBytes = intent.toByteArray().toList()

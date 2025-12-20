@@ -46,7 +46,7 @@ class EventConsumerService : Service() {
     private val eventReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val config = context.mirrorConfig
-            val topic = intent.getStringExtra(Constants.NTFY_TOPIC)
+            val topic = intent.getStringExtra(Constants.INTENT_NTFY_TOPIC)
 
             if (!config.enabled || topic != config.topic)
                 return
@@ -54,7 +54,7 @@ class EventConsumerService : Service() {
             val keyBytes = Base64.decode(config.encryptionKey, Base64.NO_WRAP)
             val key = SecretKeySpec(keyBytes, CryptoHelper.ALGORITHM)
 
-            val encryptedMessage = intent.getStringExtra(Constants.NTFY_MESSAGE) ?: return
+            val encryptedMessage = intent.getStringExtra(Constants.INTENT_NTFY_MESSAGE) ?: return
             var decryptedMessage = ""
             try {
                 decryptedMessage = CryptoHelper.decrypt(encryptedMessage, key)
@@ -85,7 +85,7 @@ class EventConsumerService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        val filter = IntentFilter(Constants.NTFY_RECEIVE_MESSAGE_ACTION)
+        val filter = IntentFilter(Constants.ACTION_NTFY_RECEIVE_MESSAGE)
         ContextCompat.registerReceiver(this, eventReceiver, filter, ContextCompat.RECEIVER_EXPORTED)
 
         val channelId = "messagesMirror-subscriber"
