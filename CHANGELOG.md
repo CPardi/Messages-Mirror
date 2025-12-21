@@ -31,4 +31,3 @@ Based on version [1.6.0](https://github.com/FossifyOrg/Messages/releases/tag/1.6
 
 - Added initial mirroring functionality for receiving SMS messages
 - Added encrypted messages
-

@@ -19,9 +19,9 @@ if (keystorePropertiesFile.exists()) {
 
 fun hasSigningVars(): Boolean {
     return providers.environmentVariable("SIGNING_KEY_ALIAS").orNull != null
-            && providers.environmentVariable("SIGNING_KEY_PASSWORD").orNull != null
-            && providers.environmentVariable("SIGNING_STORE_FILE").orNull != null
-            && providers.environmentVariable("SIGNING_STORE_PASSWORD").orNull != null
+        && providers.environmentVariable("SIGNING_KEY_PASSWORD").orNull != null
+        && providers.environmentVariable("SIGNING_STORE_FILE").orNull != null
+        && providers.environmentVariable("SIGNING_STORE_PASSWORD").orNull != null
 }
 
 android {
@@ -138,7 +138,7 @@ detekt {
 }
 
 dependencies {
-    implementation("com.github.CPardi:Fossify-Commons:3c309b1")
+    implementation("com.github.CPardi:Fossify-Commons:088557df2")
     implementation(libs.eventbus)
     implementation(libs.indicator.fast.scroll)
     implementation(libs.mmslib)
