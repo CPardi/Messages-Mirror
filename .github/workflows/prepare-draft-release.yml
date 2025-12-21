@@ -85,7 +85,7 @@ jobs:
 
           git checkout ${{inputs.feature_branch}}
           git checkout -b "release/$versionName"
-          git rebase --onto ${{inputs.based_on}} origin/main "release/$versionName"
+          git rebase --onto ${{inputs.based_on}} upstream/main "release/$versionName"
           git push origin "release/$versionName"
 
           # Outputs
