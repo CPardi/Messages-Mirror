@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import org.cpardi.messagemirror.extensions.broadcastEvent
+import org.cpardi.messagemirror.extensions.mirrorEvent
 import org.cpardi.messagemirror.extensions.mirrorConfig
 import org.cpardi.messagemirror.extensions.toByteArray
 import org.cpardi.messagemirror.helpers.Constants
@@ -22,8 +22,7 @@ class ForwardingSmsReceiver(private val wrappedReceiver: SmsReceiver = SmsReceiv
         val intentBytes = intent.toByteArray().toList()
         val metadata = EventMetadataDto(config.deviceID)
         val dto: EventDto = EventDto.SmsReceive(metadata, intentBytes)
-        context.broadcastEvent(dto)
-        Log.d(Context::broadcastEvent.name, "Sent ntfy from device ${config.deviceID}")
+        context.mirrorEvent(dto)
 
         wrappedReceiver.onReceive(context, intent)
     }

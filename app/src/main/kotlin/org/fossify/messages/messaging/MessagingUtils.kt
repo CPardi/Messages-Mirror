@@ -90,6 +90,7 @@ class MessagingUtils(val context: Context) {
         addresses: Set<String>,
         subId: Int,
         requireDeliveryReport: Boolean,
+        handleCreatedUri: (Uri) -> Unit,
         messageId: Long? = null
     ) {
         if (addresses.size > 1) {
@@ -101,7 +102,7 @@ class MessagingUtils(val context: Context) {
                 timestamp = System.currentTimeMillis(), threadId = broadCastThreadId,
                 status = Sms.Sent.STATUS_COMPLETE, type = Sms.Sent.MESSAGE_TYPE_SENT,
                 messageId = messageId
-            )
+            ).let { handleCreatedUri(it) }
         }
 
         for (address in addresses) {
@@ -111,6 +112,8 @@ class MessagingUtils(val context: Context) {
                 timestamp = System.currentTimeMillis(), threadId = threadId,
                 messageId = messageId
             )
+
+            handleCreatedUri(messageUri)
             try {
                 context.smsSender.sendMessage(
                     subId = subId, destination = address, body = text, serviceCenter = null,

@@ -148,7 +148,7 @@
     <ID>NestedBlockDepth:Context.kt$fun Context.getThreadParticipants( threadId: Long, contactsMap: HashMap&lt;Int, SimpleContact&gt;?, ): ArrayList&lt;SimpleContact&gt;</ID>
     <ID>NestedBlockDepth:MessagesImporter.kt$MessagesImporter$private fun InputStream.importXml()</ID>
     <ID>NestedBlockDepth:MessagesWriter.kt$MessagesWriter$@SuppressLint("NewApi") private fun writeMmsPart(mmsPart: MmsPart, messageId: Long)</ID>
-    <ID>NestedBlockDepth:Messaging.kt$fun Context.sendMessageOnDeviceCompat( text: String, addresses: List&lt;String&gt;, subId: Int?, attachments: List&lt;Attachment&gt;, messageId: Long? = null )</ID>
+      <ID>NestedBlockDepth:Messaging.kt$fun Context.sendMessageOnDeviceCompat( text: String, addresses: List&lt;String&gt;, subId: Int?, attachments: List&lt;Attachment&gt;, handleCreatedUri: (Uri) -&gt; Unit, messageId: Long? = null )</ID>
     <ID>NestedBlockDepth:MessagingUtils.kt$MessagingUtils$@Deprecated("TODO: Move/rewrite MMS code into the app.") fun sendMmsMessage( text: String, addresses: List&lt;String&gt;, attachment: Attachment?, settings: Settings, messageId: Long? = null )</ID>
     <ID>NestedBlockDepth:MessagingUtils.kt$MessagingUtils$fun updateSmsMessageSendingStatus(messageUri: Uri?, type: Int)</ID>
     <ID>NestedBlockDepth:SmsStatusDeliveredReceiver.kt$SmsStatusDeliveredReceiver$override fun updateAndroidDatabase(context: Context, intent: Intent, receiverResultCode: Int)</ID>

@@ -20,6 +20,7 @@ sealed class EventDto {
     @Serializable
     data class SmsSend(
         val metadata: EventMetadataDto,
+        val globalMsgIds: List<GlobalMsgId>,
         val text: String,
         val addresses: List<String>,
         val subId: Int?,
@@ -31,6 +32,7 @@ sealed class EventDto {
     @Serializable
     data class SmsSendStatus(
         val metadata: EventMetadataDto,
+        val globalMsgId: GlobalMsgId,
         val intentParcel: List<Byte>
     ) : EventDto()
 

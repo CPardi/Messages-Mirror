@@ -12,6 +12,7 @@ import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import android.util.Base64
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
@@ -28,6 +29,8 @@ import org.fossify.messages.activities.MainActivity
 import javax.crypto.BadPaddingException
 import javax.crypto.IllegalBlockSizeException
 import javax.crypto.spec.SecretKeySpec
+
+private val TAG: String = EventConsumerService::class.qualifiedName!!
 
 class EventConsumerService : Service() {
 
@@ -74,12 +77,15 @@ class EventConsumerService : Service() {
 
             val deviceID = config.deviceID
             val dto = EventDto.Companion.Serializer.decodeFromString<EventDto>(decryptedMessage)
+            Log.d(TAG, "Begin processing ${dto.javaClass.simpleName} event")
             when (dto) {
                 is EventDto.SmsReceive -> SmsReceiveHandler(deviceID).handle(context, dto)
                 is EventDto.SmsSend -> SmsSendHandler(deviceID).handle(context, dto)
                 is EventDto.SmsSendStatus -> SmsSendStatusHandler(deviceID).handle(context, dto)
                 else -> return
             }
+
+            Log.d(TAG, "Finish processing ${dto.javaClass.simpleName} event")
         }
     }
 
