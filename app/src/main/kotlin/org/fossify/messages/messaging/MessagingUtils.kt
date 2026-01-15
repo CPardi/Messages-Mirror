@@ -102,7 +102,7 @@ class MessagingUtils(val context: Context) {
                 timestamp = System.currentTimeMillis(), threadId = broadCastThreadId,
                 status = Sms.Sent.STATUS_COMPLETE, type = Sms.Sent.MESSAGE_TYPE_SENT,
                 messageId = messageId
-            ).let { it -> handleCreatedUri(it) }
+            ).let { handleCreatedUri(it) }
         }
 
         for (address in addresses) {

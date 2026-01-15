@@ -1,7 +1,10 @@
 package org.cpardi.messagemirror.databases
 
 import android.content.Context
-import androidx.room.*
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
 @Database(entities = [MessageMap::class], version = 3)
 @TypeConverters(Converters::class)

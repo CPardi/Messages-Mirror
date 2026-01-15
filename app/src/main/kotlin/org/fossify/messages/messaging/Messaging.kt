@@ -59,7 +59,7 @@ fun Context.sendMessageCompat(
     sendMessageOnDeviceCompat(text, addresses, subId, attachments, handleCreatedUri, messageId)
     ensureBackgroundThread {
         val globalMsgIds = mutableListOf<GlobalMsgId>()
-        messageUriList.forEach { it ->
+        messageUriList.forEach {
             val globalMsgId = it.toGlobalMsgId(this.mirrorConfig.deviceID)
             globalMsgIds.add(globalMsgId)
             this.messageMapDao.insert(MessageMap( globalMsgId, localMsgId = it.toLocalMsgId()))
