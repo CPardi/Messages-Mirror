@@ -26,17 +26,17 @@ class MirrorConfig(context: Context) {
 
     var enabled: Boolean
         get() = prefs.getBoolean(CONFIG_ENABLE, false)
-        set(enabled) = editor.putBoolean(CONFIG_ENABLE, enabled).apply()
+        set(it) = editor.putBoolean(CONFIG_ENABLE, it).apply()
 
     var topic: String
         get() = prefs.getString(CONFIG_TOPIC, "")!!
-        set(enabled) = editor.putString(CONFIG_TOPIC, enabled).apply()
+        set(it) = editor.putString(CONFIG_TOPIC, it).apply()
 
     var encryptionKey: String
         get() = prefs.getString(CONFIG_ENCRYPTION_KEY, "")!!
-        set(enabled) = editor.putString(CONFIG_ENCRYPTION_KEY, enabled).apply()
+        set(it) = editor.putString(CONFIG_ENCRYPTION_KEY, it).apply()
 
     var mode: DeviceMode
         get() = DeviceMode.fromInt(prefs.getInt(CONFIG_MODE, 1))
-        set(enabled) = editor.putInt(CONFIG_MODE, enabled.value).apply()
+        set(it) = editor.putInt(CONFIG_MODE, it.value).apply()
 }

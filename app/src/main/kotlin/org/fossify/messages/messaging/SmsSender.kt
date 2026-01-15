@@ -2,12 +2,12 @@ package org.fossify.messages.messaging
 
 import android.app.Application
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.telephony.PhoneNumberUtils
 import org.cpardi.messagemirror.extensions.mirrorConfig
-import org.cpardi.messagemirror.helpers.Constants
+import org.cpardi.messagemirror.messaging.LoggingSmsSender
+import org.cpardi.messagemirror.messaging.NullSmsSender
 import org.cpardi.messagemirror.models.DeviceMode
 import org.fossify.commons.helpers.isSPlus
 import org.fossify.messages.messaging.SmsException.Companion.EMPTY_DESTINATION_ADDRESS
@@ -134,7 +134,7 @@ class SmsSender(val app: Application): ISmsSender {
 
             if (mode != instance?.forMode) {
                 instance = when(mode) {
-                    DeviceMode.SmsHost -> SmsSender(app)
+                    DeviceMode.SmsHost -> LoggingSmsSender(SmsSender(app))
                     DeviceMode.Mirror -> NullSmsSender()
                     else -> throw NoWhenBranchMatchedException("Device mode case isn't implemented")
                 }
