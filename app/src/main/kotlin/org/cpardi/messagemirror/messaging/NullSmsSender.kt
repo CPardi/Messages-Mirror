@@ -11,6 +11,6 @@ class NullSmsSender : ISmsSender {
     override val forMode = DeviceMode.Mirror
 
     override fun sendMessage(subId: Int, destination: String, body: String, serviceCenter: String?, requireDeliveryReport: Boolean, messageUri: Uri) {
-        Log.d(TAG, "Ignoring local send request for message $messageUri because device is $forMode")
+        Log.d(TAG, "Did not send SMS message $messageUri using local SIM because device is $forMode")
     }
 }

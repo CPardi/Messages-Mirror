@@ -5,8 +5,9 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import org.cpardi.messagemirror.helpers.Converters
 
-@Database(entities = [MessageMap::class], version = 3)
+@Database(entities = [MessageMapStateEntity::class], version = 4)
 @TypeConverters(Converters::class)
 abstract class MirrorDatabase : RoomDatabase() {
     abstract fun MessageMapDao(): MessageMapDao
@@ -16,7 +17,7 @@ abstract class MirrorDatabase : RoomDatabase() {
         private var INSTANCE: MirrorDatabase? = null
 
         fun getInstance(context: Context): MirrorDatabase {
-            return INSTANCE ?: synchronized(this) {
+            return synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
                     context = context.applicationContext,
                     klass = MirrorDatabase::class.java,
