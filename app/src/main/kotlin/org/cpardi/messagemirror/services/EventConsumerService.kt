@@ -12,16 +12,16 @@ import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import android.util.Base64
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import org.cpardi.messagemirror.extensions.messageMapStateMachine
 import org.cpardi.messagemirror.extensions.mirrorConfig
 import org.cpardi.messagemirror.helpers.Constants
 import org.cpardi.messagemirror.helpers.CryptoHelper
-import org.cpardi.messagemirror.helpers.SmsReceiveHandler
-import org.cpardi.messagemirror.helpers.SmsSendHandler
-import org.cpardi.messagemirror.helpers.SmsSendStatusHandler
 import org.cpardi.messagemirror.models.EventDto
 import org.fossify.commons.extensions.showErrorToast
 import org.fossify.messages.R
@@ -29,8 +29,6 @@ import org.fossify.messages.activities.MainActivity
 import javax.crypto.BadPaddingException
 import javax.crypto.IllegalBlockSizeException
 import javax.crypto.spec.SecretKeySpec
-
-private val TAG: String = EventConsumerService::class.qualifiedName!!
 
 class EventConsumerService : Service() {
 
@@ -48,44 +46,43 @@ class EventConsumerService : Service() {
 
     private val eventReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val config = context.mirrorConfig
-            val topic = intent.getStringExtra(Constants.INTENT_NTFY_TOPIC)
+            val pendingResult = goAsync()
+            GlobalScope.launch(Dispatchers.IO) {
+                try {
+                    val config = context.mirrorConfig
+                    val stateMachine = context.messageMapStateMachine
+                    val topic = intent.getStringExtra(Constants.INTENT_NTFY_TOPIC)
 
-            if (!config.enabled || topic != config.topic)
-                return
+                    if (!config.enabled || topic != config.topic)
+                        return@launch
 
-            val keyBytes = Base64.decode(config.encryptionKey, Base64.NO_WRAP)
-            val key = SecretKeySpec(keyBytes, CryptoHelper.ALGORITHM)
+                    val keyBytes = Base64.decode(config.encryptionKey, Base64.NO_WRAP)
+                    val key = SecretKeySpec(keyBytes, CryptoHelper.ALGORITHM)
 
-            val encryptedMessage = intent.getStringExtra(Constants.INTENT_NTFY_MESSAGE) ?: return
-            var decryptedMessage = ""
-            try {
-                decryptedMessage = CryptoHelper.decrypt(encryptedMessage, key)
-            } catch (e: Exception) {
-                when (e) {
-                    is IndexOutOfBoundsException,
-                    is IllegalArgumentException,
-                    is IllegalBlockSizeException,
-                    is BadPaddingException -> {
-                        context.showErrorToast(e)
-                        return
+                    val encryptedMessage = intent.getStringExtra(Constants.INTENT_NTFY_MESSAGE) ?: return@launch
+                    var decryptedMessage = ""
+                    try {
+                        decryptedMessage = CryptoHelper.decrypt(encryptedMessage, key)
+                    } catch (e: Exception) {
+                        when (e) {
+                            is IndexOutOfBoundsException,
+                            is IllegalArgumentException,
+                            is IllegalBlockSizeException,
+                            is BadPaddingException -> {
+                                context.showErrorToast(e)
+                                return@launch
+                            }
+
+                            else -> throw e
+                        }
                     }
 
-                    else -> throw e
+                    val dto = EventDto.Serializer.decodeFromString<EventDto>(decryptedMessage)
+                    stateMachine.process(dto)
+                } finally {
+                    pendingResult.finish()
                 }
             }
-
-            val deviceID = config.deviceID
-            val dto = EventDto.Companion.Serializer.decodeFromString<EventDto>(decryptedMessage)
-            Log.d(TAG, "Begin processing ${dto.javaClass.simpleName} event")
-            when (dto) {
-                is EventDto.SmsReceive -> SmsReceiveHandler(deviceID).handle(context, dto)
-                is EventDto.SmsSend -> SmsSendHandler(deviceID).handle(context, dto)
-                is EventDto.SmsSendStatus -> SmsSendStatusHandler(deviceID).handle(context, dto)
-                else -> return
-            }
-
-            Log.d(TAG, "Finish processing ${dto.javaClass.simpleName} event")
         }
     }
 

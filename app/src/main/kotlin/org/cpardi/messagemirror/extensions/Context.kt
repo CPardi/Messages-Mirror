@@ -4,9 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Base64
 import android.util.Log
-import org.cpardi.messagemirror.databases.LoggingMessageMapDao
-import org.cpardi.messagemirror.databases.MessageMapDao
-import org.cpardi.messagemirror.databases.MirrorDatabase
+import org.cpardi.messagemirror.stateMachines.MessageMapStateMachine
 import org.cpardi.messagemirror.helpers.Constants
 import org.cpardi.messagemirror.helpers.CryptoHelper
 import org.cpardi.messagemirror.helpers.MirrorConfig
@@ -19,10 +17,8 @@ private const val TAG: String = "org.cpardi.messagemirror.extensions"
 val Context.mirrorConfig: MirrorConfig
     get() = MirrorConfig(this)
 
-private fun Context.getDb() = MirrorDatabase.Holder.getInstance(this)
-
-val Context.messageMapDao: MessageMapDao
-    get() = LoggingMessageMapDao(baseDao = getDb().MessageMapDao())
+val Context.messageMapStateMachine : MessageMapStateMachine
+    get() = MessageMapStateMachine(this)
 
 fun Context.mirrorEvent(dto: EventDto) {
     val config = this.mirrorConfig
@@ -30,8 +26,6 @@ fun Context.mirrorEvent(dto: EventDto) {
     val key = SecretKeySpec(keyBytes, CryptoHelper.ALGORITHM)
 
     ensureBackgroundThread {
-        Log.d(TAG, "Mirroring ${dto.javaClass.simpleName} event")
-
         val message = EventDto.Serializer.encodeToString(dto)
         val encryptedMessage = CryptoHelper.encrypt(message, key)
 
@@ -40,5 +34,6 @@ fun Context.mirrorEvent(dto: EventDto) {
         ntfyIntent.putExtra(Constants.INTENT_NTFY_TOPIC, config.topic)
         ntfyIntent.putExtra(Constants.INTENT_NTFY_MESSAGE, encryptedMessage)
         this.sendBroadcast(ntfyIntent)
+        Log.d(TAG, "Broadcast intent of mirroring ${dto.javaClass.simpleName} event")
     }
 }

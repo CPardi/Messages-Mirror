@@ -28,7 +28,7 @@ import org.fossify.messages.helpers.refreshConversations
 import org.fossify.messages.helpers.refreshMessages
 import org.fossify.messages.models.Message
 
-open class SmsReceiver : BroadcastReceiver() {
+open class SmsReceiver(val handleLocalMsgInt: ((Long) -> Unit)? = null) : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val messages = Telephony.Sms.Intents.getMessagesFromIntent(intent)
         var address = ""
@@ -88,6 +88,7 @@ open class SmsReceiver : BroadcastReceiver() {
                 val privateCursor = context.getMyContactsCursor(favoritesOnly = false, withPhoneNumbersOnly = true)
                 ensureBackgroundThread {
                     val newMessageId = context.insertNewSMS(address, subject, body, date, read, threadId, type, subscriptionId)
+                    handleLocalMsgInt?.invoke(newMessageId)
 
                     val conversation = context.getConversations(threadId).firstOrNull() ?: return@ensureBackgroundThread
                     try {

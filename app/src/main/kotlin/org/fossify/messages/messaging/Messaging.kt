@@ -6,12 +6,7 @@ import android.telephony.SmsMessage
 import android.util.Patterns
 import android.widget.Toast.LENGTH_LONG
 import com.klinker.android.send_message.Settings
-import org.cpardi.messagemirror.models.GlobalMsgId
-import org.cpardi.messagemirror.databases.MessageMap
-import org.cpardi.messagemirror.extensions.toGlobalMsgId
-import org.cpardi.messagemirror.extensions.toLocalMsgId
-import org.cpardi.messagemirror.extensions.messageMapDao
-import org.cpardi.messagemirror.extensions.mirrorEvent
+import org.cpardi.messagemirror.extensions.messageMapStateMachine
 import org.cpardi.messagemirror.extensions.mirrorConfig
 import org.cpardi.messagemirror.models.EventDto
 import org.cpardi.messagemirror.models.EventMetadataDto
@@ -53,24 +48,11 @@ fun Context.sendMessageCompat(
     attachments: List<Attachment>,
     messageId: Long? = null
 ) {
-    val messageUriList = mutableListOf<Uri>()
-    val handleCreatedUri: (Uri) -> Unit = { uri -> messageUriList.add(uri) }
-
-    sendMessageOnDeviceCompat(text, addresses, subId, attachments, handleCreatedUri, messageId)
-    ensureBackgroundThread {
-        val globalMsgIds = mutableListOf<GlobalMsgId>()
-        messageUriList.forEach {
-            val globalMsgId = it.toGlobalMsgId(this.mirrorConfig.deviceID)
-            globalMsgIds.add(globalMsgId)
-            this.messageMapDao.insert(MessageMap( globalMsgId, localMsgId = it.toLocalMsgId()))
-        }
-
-        val config = this.mirrorConfig
-        val metadata = EventMetadataDto(config.deviceID)
-        val attachments = attachments.map { attachment -> attachment.toDto() }
-        val dto: EventDto = EventDto.SmsSend(metadata, globalMsgIds, text, addresses, subId, attachments, messageId)
-        mirrorEvent(dto)
-    }
+    val config = this.mirrorConfig
+    val metadata = EventMetadataDto(config.deviceID)
+    val attachments = attachments.map { attachment -> attachment.toDto() }
+    val dto: EventDto = EventDto.SmsSend(metadata, text, addresses, subId, attachments, messageId)
+    messageMapStateMachine.process(dto)
 }
 
 /** Sends the message using the in-app SmsManager API wrappers if it's an SMS or using android-smsmms for MMS. */

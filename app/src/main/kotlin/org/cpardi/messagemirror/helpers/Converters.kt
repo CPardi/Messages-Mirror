@@ -1,4 +1,4 @@
-package org.cpardi.messagemirror.databases
+package org.cpardi.messagemirror.helpers
 
 import androidx.room.TypeConverter
 import org.cpardi.messagemirror.models.GlobalMsgId
