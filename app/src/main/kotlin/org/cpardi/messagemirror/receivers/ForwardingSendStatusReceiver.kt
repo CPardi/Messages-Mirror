@@ -11,8 +11,6 @@ import org.cpardi.messagemirror.models.EventDto
 import org.cpardi.messagemirror.models.EventMetadataDto
 import org.fossify.messages.receivers.SendStatusReceiver
 
-private val TAG: String = ForwardingSendStatusReceiver::class.qualifiedName!!
-
 abstract class ForwardingSendStatusReceiver : SendStatusReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {

@@ -10,8 +10,6 @@ import org.cpardi.messagemirror.models.Keyed
 import org.cpardi.messagemirror.models.LocalMsgId
 import org.fossify.messages.receivers.SmsReceiver
 
-private val TAG = OnSmsReceiveInUnknown::class.qualifiedName!!
-
 class OnSmsReceiveInUnknown(val context: Context) {
     fun handle(dto: EventDto.SmsReceive): List<Keyed<MessageMapState>>? {
         val receiver = SmsReceiver { localId ->

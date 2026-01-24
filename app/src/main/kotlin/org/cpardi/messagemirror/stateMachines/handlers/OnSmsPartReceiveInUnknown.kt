@@ -8,8 +8,6 @@ import org.cpardi.messagemirror.extensions.toByteArray
 import org.cpardi.messagemirror.models.EventDto
 import org.cpardi.messagemirror.models.Keyed
 
-private val TAG = OnSmsPartReceiveInUnknown::class.qualifiedName!!
-
 class OnSmsPartReceiveInUnknown(val context: Context) {
     fun handle(dto: EventDto.SmsPartReceive): Keyed<MessageMapState> {
         if (context.mirrorConfig.deviceID == dto.metadata.senderID) {

@@ -4,7 +4,9 @@ import android.content.Context
 import android.util.Log
 import org.cpardi.messagemirror.models.Keyed
 import org.cpardi.messagemirror.databases.MessageMapState
-import org.cpardi.messagemirror.extensions.*
+import org.cpardi.messagemirror.extensions.mirrorConfig
+import org.cpardi.messagemirror.extensions.toIntent
+import org.cpardi.messagemirror.extensions.toUri
 import org.cpardi.messagemirror.models.EventDto
 
 private val TAG: String = OnSmsSendStatusMirroredInAvailable::class.qualifiedName!!

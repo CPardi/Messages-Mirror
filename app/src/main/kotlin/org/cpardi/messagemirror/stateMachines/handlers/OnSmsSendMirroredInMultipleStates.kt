@@ -39,7 +39,7 @@ class OnSmsSendMirroredInMultipleStates(val context: Context) {
 
         Log.d(TAG, "Finish processing SMS send as requested by device ${sendMirrored.smsSend.metadata.senderID}")
 
-        val globalToLocalMap = sendMirrored.globalMsgIds.mapIndexed { i, it -> Pair(it, localMsgIds[i]) }.toMap()
+        val globalToLocalMap = sendMirrored.globalMsgIds.mapIndexed { index, globalMsgId -> Pair(globalMsgId, localMsgIds[index]) }.toMap()
         return keyedStates.map { keyed ->
             val globalMsgId = keyed.globalMsgId
             val localMsgId = globalToLocalMap[globalMsgId]!!
@@ -57,7 +57,7 @@ class OnSmsSendMirroredInMultipleStates(val context: Context) {
                     Keyed(globalMsgId, available)
                 }
 
-                is MessageMapState.Available -> throw IllegalStateException("Event '${sendMirrored::class.simpleName}' not allowed when in state '${state::class.simpleName}'")
+                is MessageMapState.Available -> error("Event '${sendMirrored::class.simpleName}' not allowed when in state '${state::class.simpleName}'")
             }
         }
     }

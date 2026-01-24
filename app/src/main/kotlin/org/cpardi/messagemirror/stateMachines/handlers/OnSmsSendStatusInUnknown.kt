@@ -5,8 +5,6 @@ import org.cpardi.messagemirror.databases.MessageMapState
 import org.cpardi.messagemirror.models.EventDto
 import org.cpardi.messagemirror.models.LKeyed
 
-private val TAG: String = OnSmsSendStatusInUnknown::class.qualifiedName!!
-
 class OnSmsSendStatusInUnknown(val context: Context) {
     fun handle(dto: EventDto.SmsSendStatus): LKeyed<MessageMapState> {
         return LKeyed(dto.localMsgId, MessageMapState.Partial(dto))

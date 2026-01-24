@@ -54,14 +54,14 @@ fun MessageMapStateEntity?.toState(): MessageMapState =
             StateType.Partial -> {
                 val status = smsSendStatusJson?.let { Json.decodeFromString<EventDto.SmsSendStatus>(it) }
                 if (status != null) MessageMapState.Partial(status)
-                else throw IllegalStateException("Invalid Partial state JSON")
+                else error("Invalid Partial state JSON")
             }
 
             StateType.Available -> {
                 if (localMsgId != null) {
                     MessageMapState.Available(globalMsgId!!, localMsgId)
                 } else {
-                    throw IllegalStateException("Available state missing localMsgId")
+                    error("Available state missing localMsgId")
                 }
             }
 

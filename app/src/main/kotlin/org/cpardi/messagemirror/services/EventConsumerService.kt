@@ -30,8 +30,6 @@ import javax.crypto.BadPaddingException
 import javax.crypto.IllegalBlockSizeException
 import javax.crypto.spec.SecretKeySpec
 
-private val TAG: String = EventConsumerService::class.qualifiedName!!
-
 class EventConsumerService : Service() {
 
     class BootStartReceiver : BroadcastReceiver() {

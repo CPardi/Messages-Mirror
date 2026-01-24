@@ -6,8 +6,6 @@ import org.cpardi.messagemirror.extensions.mirrorEvent
 import org.cpardi.messagemirror.models.EventDto
 import org.cpardi.messagemirror.models.Keyed
 
-private val TAG: String = OnSmsSendStatusInAvailable::class.qualifiedName!!
-
 class OnSmsSendStatusInAvailable(val context: Context) {
     fun handle(state: Keyed<MessageMapState.Available>, dto: EventDto.SmsSendStatus): Keyed<MessageMapState>? {
         context.mirrorEvent(EventDto.SmsSendStatusMirrored(state.globalMsgId, dto))
