@@ -62,6 +62,19 @@ sealed class EventDto {
         val smsSendStatus: SmsSendStatus
     ) : EventDto()
 
+    data class DeleteSms(
+        val localMsgId: LocalMsgId,
+        val metadata: EventMetadataDto,
+        val isMms: Boolean
+    ) : EventDto()
+
+    @Serializable
+    data class DeleteSmsMirrored(
+        val globalMsgId: GlobalMsgId,
+        val metadata: EventMetadataDto,
+        val isMms: Boolean
+    ) : EventDto()
+
 
     companion object {
         /** Enables polymorphic serialisation for this class */
@@ -70,10 +83,9 @@ sealed class EventDto {
                 serializersModule = SerializersModule {
                     polymorphic(EventDto::class) {
                         subclass(SmsReceiveMirrored::class)
-                        subclass(SmsSend::class)
                         subclass(SmsSendMirrored::class)
-                        subclass(SmsSendStatus::class)
                         subclass(SmsSendStatusMirrored::class)
+                        subclass(DeleteSmsMirrored::class)
                     }
                 }
                 classDiscriminator = "type"

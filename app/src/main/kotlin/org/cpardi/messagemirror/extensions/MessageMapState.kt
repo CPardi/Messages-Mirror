@@ -25,6 +25,12 @@ fun MessageMapState.toEntity(globalMsgId: GlobalMsgId): MessageMapStateEntity = 
         globalMsgId = globalMsgId,
         localMsgId = localMsgId
     )
+
+    is MessageMapState.Deleted -> MessageMapStateEntity(
+        stateType = StateType.Deleted,
+        globalMsgId = globalMsgId,
+        rowId = rowId ?: error("rowId field must always be set in the Deleted state")
+    )
 }
 
 fun MessageMapState.toEntity(localMsgId: LocalMsgId): MessageMapStateEntity = when (this) {
@@ -44,6 +50,12 @@ fun MessageMapState.toEntity(localMsgId: LocalMsgId): MessageMapStateEntity = wh
         localMsgId = localMsgId,
         globalMsgId = this.globalMsgId,
     )
+
+    is MessageMapState.Deleted -> MessageMapStateEntity(
+        stateType = StateType.Deleted,
+        localMsgId = localMsgId,
+        rowId = rowId ?: error("rowId field must always be set in the Deleted state")
+    )
 }
 
 fun MessageMapStateEntity?.toState(): MessageMapState =
@@ -59,10 +71,14 @@ fun MessageMapStateEntity?.toState(): MessageMapState =
 
             StateType.Available -> {
                 if (localMsgId != null) {
-                    MessageMapState.Available(globalMsgId!!, localMsgId)
+                    MessageMapState.Available(globalMsgId!!, localMsgId, rowId)
                 } else {
                     error("Available state missing localMsgId")
                 }
+            }
+
+            StateType.Deleted -> {
+                MessageMapState.Deleted(rowId)
             }
 
             else -> throw IllegalArgumentException("Unknown stateType: $stateType")
