@@ -19,6 +19,9 @@ interface MessageMapDao {
 
     @Query("SELECT * FROM MessageMapStateEntity WHERE localMsgId = :localMsgId LIMIT 1")
     fun getByLocalMsgId(localMsgId: LocalMsgId): MessageMapStateEntity?
+
+    @Query("DELETE FROM MessageMapStateEntity WHERE rowId = :rowId")
+    fun deleteById(rowId: Long)
 }
 
 class LoggingMessageMapDao(val baseDao: MessageMapDao) : MessageMapDao {
@@ -45,5 +48,10 @@ class LoggingMessageMapDao(val baseDao: MessageMapDao) : MessageMapDao {
             Log.d(TAG, "Retrieved message map ${map.localMsgId}->${map.globalMsgId} using local msg Id")
 
         return map
+    }
+
+    override fun deleteById(rowId: Long) {
+        baseDao.deleteById(rowId)
+        Log.d(TAG, "Deleted message map with id $rowId")
     }
 }

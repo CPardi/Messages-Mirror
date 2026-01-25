@@ -25,6 +25,11 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.mms.pdu_alt.PduHeaders
+import org.cpardi.messagemirror.extensions.messageMapStateMachine
+import org.cpardi.messagemirror.extensions.mirrorConfig
+import org.cpardi.messagemirror.models.EventDto
+import org.cpardi.messagemirror.models.EventMetadataDto
+import org.cpardi.messagemirror.models.LocalMsgId
 import org.fossify.commons.extensions.areDigitsOnly
 import org.fossify.commons.extensions.getBlockedNumbers
 import org.fossify.commons.extensions.getIntValue
@@ -962,6 +967,13 @@ fun Context.updateConversationArchivedStatus(threadId: Long, archived: Boolean) 
 }
 
 fun Context.deleteMessage(id: Long, isMMS: Boolean) {
+    val config = this.mirrorConfig
+    val metadata = EventMetadataDto(config.deviceID)
+    val dto: EventDto = EventDto.DeleteSms(LocalMsgId(id.toString()), metadata, isMMS)
+    messageMapStateMachine.process(dto)
+}
+
+fun Context.deleteMessageOnDevice(id: Long, isMMS: Boolean) {
     val uri = if (isMMS) Mms.CONTENT_URI else Sms.CONTENT_URI
     val selection = "${Sms._ID} = ?"
     val selectionArgs = arrayOf(id.toString())
@@ -1027,7 +1039,7 @@ fun Context.markThreadMessagesUnread(threadId: Long) {
         contentResolver.update(uri, contentValues, selection, selectionArgs)
     }
     conversationsDB.markUnread(threadId)
-} 
+}
 
 @SuppressLint("NewApi")
 fun Context.getThreadId(address: String): Long {

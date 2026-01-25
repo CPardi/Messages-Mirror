@@ -8,7 +8,7 @@ import org.cpardi.messagemirror.models.StateType
 
 @Entity
 data class MessageMapStateEntity(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) val rowId: Long = 0,
     val stateType: StateType,
     val globalMsgId: GlobalMsgId? = null,
     val localMsgId: LocalMsgId? = null,

@@ -8,6 +8,7 @@ import kotlinx.coroutines.runBlocking
 import org.cpardi.messagemirror.databases.LoggingMessageMapDao
 import org.cpardi.messagemirror.databases.MessageMapDao
 import org.cpardi.messagemirror.databases.MessageMapState
+import org.cpardi.messagemirror.databases.MessageMapStateEntity
 import org.cpardi.messagemirror.databases.MirrorDatabase
 import org.cpardi.messagemirror.extensions.toEntity
 import org.cpardi.messagemirror.extensions.toState
@@ -27,6 +28,10 @@ import org.cpardi.messagemirror.models.Keyed
 import org.cpardi.messagemirror.models.LKeyed
 import org.cpardi.messagemirror.models.LocalMsgId
 import org.cpardi.messagemirror.models.StateType
+import org.cpardi.messagemirror.stateMachines.handlers.OnDeleteSmsInAvailable
+import org.cpardi.messagemirror.stateMachines.handlers.OnDeleteSmsInUnknown
+import org.cpardi.messagemirror.stateMachines.handlers.OnDeleteSmsMirroredInAvailable
+import org.cpardi.messagemirror.stateMachines.handlers.OnDeleteSmsMirroredInUnknown
 
 private val TAG: String = MessageMapStateMachine::class.qualifiedName!!
 
@@ -53,6 +58,12 @@ class MessageMapStateMachine(val context: Context) {
     private val onSmsSendStatusMirroredInUnknown = OnSmsSendStatusMirroredInUnknown(context)
     private val onSmsSendStatusMirroredInAvailable = OnSmsSendStatusMirroredInAvailable(context)
 
+    private val onDeleteSmsInUnknown = OnDeleteSmsInUnknown(context)
+    private val onDeleteSmsInAvailable = OnDeleteSmsInAvailable(context)
+
+    private val onDeleteSmsMirroredInUnknown = OnDeleteSmsMirroredInUnknown(context)
+    private val onDeleteSmsMirroredInAvailable = OnDeleteSmsMirroredInAvailable(context)
+
     private val onAnyEventPost = OnAnyEventPost(context)
 
     fun process(dto: EventDto) = runBlocking(@OptIn(ExperimentalCoroutinesApi::class)singleThreadDispatcher) {
@@ -67,6 +78,9 @@ class MessageMapStateMachine(val context: Context) {
 
             is EventDto.SmsSendStatus -> onSmsSendStatus(dto)
             is EventDto.SmsSendStatusMirrored -> onSmsSendStatusMirrored(dto)
+
+            is EventDto.DeleteSms -> onDeleteSms(dto)
+            is EventDto.DeleteSmsMirrored -> onDeleteSmsMirrored(dto)
         }
 
         onAnyEventPost.handle(dto)
@@ -100,6 +114,7 @@ class MessageMapStateMachine(val context: Context) {
             is MessageMapState.Unknown -> updateState(onSmsSendStatusInUnknown.handle(status))
             is MessageMapState.Partial -> state.disallowed(status)
             is MessageMapState.Available -> updateState(onSmsSendStatusInAvailable.handle(Keyed(state.globalMsgId, state), status))
+            is MessageMapState.Deleted -> state.disallowed(status)
         }
     }
 
@@ -109,7 +124,28 @@ class MessageMapStateMachine(val context: Context) {
             is MessageMapState.Unknown -> onSmsSendStatusMirroredInUnknown.handle(status)
             is MessageMapState.Partial -> state.disallowed(status)
             is MessageMapState.Available -> onSmsSendStatusMirroredInAvailable.handle(Keyed(keyedState.globalMsgId, state), status)
+            is MessageMapState.Deleted -> state.disallowed(status)
         }.let { updateState(it) }
+    }
+
+    private fun onDeleteSms(delete: EventDto.DeleteSms) {
+        val keyedState = LKeyed(delete.localMsgId, getCurrentState(delete.localMsgId))
+        when (val state = keyedState.item) {
+            is MessageMapState.Unknown -> onDeleteSmsInUnknown.handle(delete)
+            is MessageMapState.Partial -> state.disallowed(delete)
+            is MessageMapState.Available -> updateState(onDeleteSmsInAvailable.handle(state, delete))
+            is MessageMapState.Deleted -> state.disallowed(delete)
+        }
+    }
+
+    private fun onDeleteSmsMirrored(delete: EventDto.DeleteSmsMirrored) {
+        val keyedState = Keyed(delete.globalMsgId, getCurrentState(delete.globalMsgId))
+        when (val state = keyedState.item) {
+            is MessageMapState.Unknown -> onDeleteSmsMirroredInUnknown.handle(delete)
+            is MessageMapState.Partial -> state.disallowed(delete)
+            is MessageMapState.Available -> updateState(onDeleteSmsMirroredInAvailable.handle(state, delete))
+            is MessageMapState.Deleted -> state.disallowed(delete)
+        }
     }
 
     private fun getCurrentState(localMsgId: LocalMsgId): MessageMapState {
@@ -126,25 +162,25 @@ class MessageMapStateMachine(val context: Context) {
     }
 
     private fun updateState(state: Keyed<MessageMapState>?) {
-        if (state == null)
-            return
-
+        if (state == null) return
         val entity = state.item.toEntity(state.globalMsgId)
-        if (entity.stateType != StateType.Unknown)
-            dao.upsert(entity)
-
-        Log.d(TAG, "State machine ${state.globalMsgId}, transition to ${state.item::class.simpleName}")
+        updateEntityState(entity, state.globalMsgId.toString(), state.item::class.simpleName)
     }
 
     private fun updateState(keyedState: LKeyed<MessageMapState>?) {
-        if (keyedState == null)
-            return
-
+        if (keyedState == null) return
         val entity = keyedState.item.toEntity(keyedState.localMsgId)
-        if (entity.stateType != StateType.Unknown)
-            dao.upsert(entity)
+        updateEntityState(entity, keyedState.localMsgId.toString(), keyedState.item::class.simpleName)
+    }
 
-        Log.d(TAG, "State machine ${keyedState.localMsgId}, transition to ${keyedState.item::class.simpleName}")
+    private fun updateEntityState(entity: MessageMapStateEntity, id: String, stateName: String?) {
+        when (entity.stateType) {
+            StateType.Deleted -> dao.deleteById(entity.rowId)
+            StateType.Unknown -> {} // Do nothing for Unknown state
+            else -> dao.upsert(entity)
+        }
+
+        Log.d(TAG, "State machine $id, transition to $stateName")
     }
 
     private fun updateStates(states: List<Keyed<MessageMapState>>?) {
@@ -159,8 +195,8 @@ class MessageMapStateMachine(val context: Context) {
         return null
     }
 
-    private fun MessageMapState.Available.disallowed(dto: EventDto): Keyed<MessageMapState.Available>? {
-        Log.w(TAG, "State machine ${this.globalMsgId}, event '${dto::class.simpleName}' is not allowed when in state '${this::class.simpleName}'")
+    private fun MessageMapState.Deleted.disallowed(dto: EventDto): Keyed<MessageMapState.Deleted>? {
+        Log.w(TAG, "State machine ${this.rowId}, event '${dto::class.simpleName}' is not allowed when in state '${this::class.simpleName}'")
         return null
     }
 }

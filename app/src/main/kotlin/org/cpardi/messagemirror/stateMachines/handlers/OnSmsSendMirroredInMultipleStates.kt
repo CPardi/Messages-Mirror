@@ -58,6 +58,7 @@ class OnSmsSendMirroredInMultipleStates(val context: Context) {
                 }
 
                 is MessageMapState.Available -> error("Event '${sendMirrored::class.simpleName}' not allowed when in state '${state::class.simpleName}'")
+                is MessageMapState.Deleted -> error("Event '${sendMirrored::class.simpleName}' not allowed when in state '${state::class.simpleName}'")
             }
         }
     }
