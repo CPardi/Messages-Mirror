@@ -8,6 +8,7 @@ import org.cpardi.messagemirror.helpers.Constants.CONFIG_MODE
 import org.cpardi.messagemirror.helpers.Constants.SHARED_PREFERENCES_NAME
 import org.cpardi.messagemirror.helpers.Constants.CONFIG_TOPIC
 import org.cpardi.messagemirror.models.DeviceMode
+import java.net.URI
 import java.util.UUID
 
 class MirrorConfig(context: Context) {
@@ -28,9 +29,9 @@ class MirrorConfig(context: Context) {
         get() = prefs.getBoolean(CONFIG_ENABLE, false)
         set(it) = editor.putBoolean(CONFIG_ENABLE, it).apply()
 
-    var topic: String
-        get() = prefs.getString(CONFIG_TOPIC, "")!!
-        set(it) = editor.putString(CONFIG_TOPIC, it).apply()
+    var topicUrl: URI
+        get() = URI(prefs.getString(CONFIG_TOPIC, "")!!)
+        set(it) = editor.putString(CONFIG_TOPIC, it.toString()).apply()
 
     var encryptionKey: String
         get() = prefs.getString(CONFIG_ENCRYPTION_KEY, "")!!

@@ -28,10 +28,11 @@ class OnSmsSendMirroredInMultipleStates(val context: Context) {
             localMsgIds.add(uri.toLocalMsgId())
         }
 
+
         context.sendMessageOnDeviceCompat(
             sendMirrored.smsSend.text,
             sendMirrored.smsSend.addresses,
-            sendMirrored.smsSend.subId,
+            null, // Use the default subscription (SIM card) for the time being
             sendMirrored.smsSend.attachments.map { attachmentDto -> attachmentDto.fromDto() },
             handleCreatedUri,
             sendMirrored.smsSend.messageId,

@@ -144,7 +144,7 @@
     <string name="enable_mirror">Enable Mirror</string>
     <string name="ntfy_warning">Warning: ntfy.sh app is not installed. Please install it from the Play Store.</string>
     <string name="device_mode">Device Mode</string>
-    <string name="topic">Topic</string>
+    <string name="topic_url">Topic URL</string>
     <string name="example_topic">JCCtIRlCnhkr3Tky</string>
     <string name="generate_random_topic">Generate random topic</string>
     <string name="copy_topic_to_clipboard">Copy topic to clipboard</string>

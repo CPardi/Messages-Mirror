@@ -8,6 +8,7 @@ object Constants {
     const val PACKAGE_NTFY = "io.heckel.ntfy"
 
     const val INTENT_NTFY_MESSAGE = "message"
+    const val INTENT_NTFY_BASE_URL = "base_url"
     const val INTENT_NTFY_TOPIC = "topic"
 
     const val SHARED_PREFERENCES_NAME = "org.cpardi.messagemirror"

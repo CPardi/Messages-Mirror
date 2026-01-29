@@ -86,7 +86,7 @@
                     style="@style/SettingsTextLabelStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/topic" />
+                    android:text="@string/topic_url" />
 
                 <org.fossify.commons.views.MyEditText
                     android:id="@+id/mirror_settings_topic_edittext"
