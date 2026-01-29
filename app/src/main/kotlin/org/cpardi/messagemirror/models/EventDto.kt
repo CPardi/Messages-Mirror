@@ -28,7 +28,7 @@ sealed class EventDto {
     data class SmsReceiveMirrored(
         val metadata: EventMetadataDto,
         val globalMsgId: GlobalMsgId,
-        val intentBytes: List<Byte>
+        val intentData: String
     ) : EventDto()
 
     /** Represents when an SMS message is sent */
@@ -53,7 +53,7 @@ sealed class EventDto {
     data class SmsSendStatus(
         val localMsgId: LocalMsgId,
         val metadata: EventMetadataDto,
-        val intentParcel: List<Byte>
+        val intentData: String
     ) : EventDto()
 
     @Serializable
@@ -88,6 +88,8 @@ sealed class EventDto {
                         subclass(DeleteSmsMirrored::class)
                     }
                 }
+                explicitNulls = false
+                prettyPrint = false
                 classDiscriminator = "type"
                 ignoreUnknownKeys = true
             }

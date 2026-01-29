@@ -1,8 +1,11 @@
 package org.cpardi.messagemirror.helpers
 
 import android.util.Base64
+import java.io.ByteArrayOutputStream
 import java.nio.charset.Charset
 import java.security.SecureRandom
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -22,25 +25,33 @@ object CryptoHelper {
     }
 
     fun encrypt(plainText: String, key: SecretKeySpec): String {
+        val compressed =
+            ByteArrayOutputStream().use {
+                GZIPOutputStream(it).use { gzip -> gzip.write(plainText.toByteArray(CHARSET)) }
+                it.toByteArray()
+            }
+
         val cipher = Cipher.getInstance(TRANSFORMATION)
         val iv = ByteArray(size = 16)
         secureRandom.nextBytes(iv)
         val ivSpec = IvParameterSpec(iv)
         cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec)
-        val encrypted = cipher.doFinal(plainText.toByteArray(CHARSET))
-        // Prepend IV to encrypted bytes
-        val combined = iv + encrypted
+        val encrypted = cipher.doFinal(compressed)
+        val combined = iv + encrypted // Prepend IV to encrypted bytes
+
         return Base64.encodeToString(combined, Base64.NO_WRAP)
     }
 
     fun decrypt(encryptedBase64: String, key: SecretKeySpec): String {
         val combined = Base64.decode(encryptedBase64, Base64.NO_WRAP)
         val iv = combined.copyOfRange(fromIndex = 0, toIndex = 16)
-        val encrypted = combined.copyOfRange(fromIndex =  16, toIndex = combined.size)
+        val encrypted = combined.copyOfRange(fromIndex = 16, toIndex = combined.size)
         val cipher = Cipher.getInstance(TRANSFORMATION)
         val ivSpec = IvParameterSpec(iv)
         cipher.init(Cipher.DECRYPT_MODE, key, ivSpec)
         val decrypted = cipher.doFinal(encrypted)
-        return String(decrypted, CHARSET)
+        val uncompressed = GZIPInputStream(decrypted.inputStream()).use { gzip -> gzip.readBytes() }
+
+        return String(uncompressed, CHARSET)
     }
 }
