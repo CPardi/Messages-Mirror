@@ -2,8 +2,8 @@ package org.cpardi.messagemirror.stateMachines
 
 import android.content.Context
 import android.util.Log
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import org.cpardi.messagemirror.databases.LoggingMessageMapDao
 import org.cpardi.messagemirror.databases.MessageMapDao
@@ -32,12 +32,14 @@ import org.cpardi.messagemirror.stateMachines.handlers.OnDeleteSmsInAvailable
 import org.cpardi.messagemirror.stateMachines.handlers.OnDeleteSmsInUnknown
 import org.cpardi.messagemirror.stateMachines.handlers.OnDeleteSmsMirroredInAvailable
 import org.cpardi.messagemirror.stateMachines.handlers.OnDeleteSmsMirroredInUnknown
+import java.util.concurrent.Executors
 
 private val TAG: String = MessageMapStateMachine::class.qualifiedName!!
 
 class MessageMapStateMachine(val context: Context) {
     companion object {
-        private val singleThreadDispatcher = @OptIn(ExperimentalCoroutinesApi::class)newSingleThreadContext("MessageMapStateMachineThread")
+        private val singleThreadExecutor = Executors.newSingleThreadExecutor()
+        private val singleThreadDispatcher: ExecutorCoroutineDispatcher = singleThreadExecutor.asCoroutineDispatcher()
         private var DaoInstance: MessageMapDao? = null
     }
 
@@ -66,7 +68,7 @@ class MessageMapStateMachine(val context: Context) {
 
     private val onAnyEventPost = OnAnyEventPost(context)
 
-    fun process(dto: EventDto) = runBlocking(@OptIn(ExperimentalCoroutinesApi::class)singleThreadDispatcher) {
+    fun process(dto: EventDto) = runBlocking(singleThreadDispatcher) {
         Log.d(TAG, "State machine started processing ${dto::class.simpleName} event")
         when (dto) {
             is EventDto.SmsReceive -> onSmsReceive(dto)

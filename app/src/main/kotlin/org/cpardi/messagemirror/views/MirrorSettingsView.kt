@@ -33,6 +33,7 @@ import org.fossify.commons.extensions.updateTextColors
 import org.fossify.commons.models.RadioItem
 import org.fossify.messages.databinding.ViewMirrorSettingsBinding
 import org.fossify.messages.extensions.toArrayList
+import java.net.URI
 import java.security.SecureRandom
 
 class MirrorSettingsView @JvmOverloads constructor(
@@ -112,13 +113,13 @@ class MirrorSettingsView @JvmOverloads constructor(
     }
 
     private fun setupTopic() = binding.apply {
-        mirrorSettingsTopicEdittext.setText(config.topic)
+        mirrorSettingsTopicEdittext.setText(config.topicUrl.toString())
 
         mirrorSettingsTopicEdittext.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { // This is intentionally empty
             }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                config.topic = s?.toString() ?: ""
+                config.topicUrl = URI(s?.toString() ?: "")
             }
             override fun afterTextChanged(s: Editable?) { // This is intentionally empty
             }
@@ -176,7 +177,7 @@ class MirrorSettingsView @JvmOverloads constructor(
 
     private fun setupShare() = binding.apply {
         mirrorSettingsShareHolder.setOnClickListener {
-            ShareMirrorSettingsDialog(context, "${config.topic};${config.encryptionKey}")
+            ShareMirrorSettingsDialog(context, "${config.topicUrl};${config.encryptionKey}")
         }
     }
 

@@ -12,6 +12,7 @@ import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import android.util.Base64
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
@@ -23,12 +24,16 @@ import org.cpardi.messagemirror.extensions.mirrorConfig
 import org.cpardi.messagemirror.helpers.Constants
 import org.cpardi.messagemirror.helpers.CryptoHelper
 import org.cpardi.messagemirror.models.EventDto
+import org.cpardi.messagemirror.stateMachines.handlers.OnSmsSendMirroredInMultipleStates
 import org.fossify.commons.extensions.showErrorToast
 import org.fossify.messages.R
 import org.fossify.messages.activities.MainActivity
+import java.net.URI
 import javax.crypto.BadPaddingException
 import javax.crypto.IllegalBlockSizeException
 import javax.crypto.spec.SecretKeySpec
+
+private val TAG: String = OnSmsSendMirroredInMultipleStates::class.qualifiedName!!
 
 class EventConsumerService : Service() {
 
@@ -51,10 +56,16 @@ class EventConsumerService : Service() {
                 try {
                     val config = context.mirrorConfig
                     val stateMachine = context.messageMapStateMachine
-                    val topic = intent.getStringExtra(Constants.INTENT_NTFY_TOPIC)
 
-                    if (!config.enabled || topic != config.topic)
+                    val topicUrl = config.topicUrl
+                    val baseUrl = intent.getStringExtra(Constants.INTENT_NTFY_BASE_URL)
+                    val topic = intent.getStringExtra(Constants.INTENT_NTFY_TOPIC)
+                    val subscribedTopicUrl = URI("$baseUrl/$topic")
+
+                    if (!config.enabled || topicUrl != subscribedTopicUrl) {
+                        Log.d(TAG, "Subscribed to topic URL ${subscribedTopicUrl}, but received $topicUrl")
                         return@launch
+                    }
 
                     val keyBytes = Base64.decode(config.encryptionKey, Base64.NO_WRAP)
                     val key = SecretKeySpec(keyBytes, CryptoHelper.ALGORITHM)
