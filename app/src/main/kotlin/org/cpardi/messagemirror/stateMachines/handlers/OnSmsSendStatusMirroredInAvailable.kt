@@ -18,7 +18,7 @@ class OnSmsSendStatusMirroredInAvailable(val context: Context) {
             return null
         }
 
-        val intent = dto.smsSendStatus.intentParcel.toByteArray().toIntent()
+        val intent = dto.smsSendStatus.intentData.toIntent()
         intent.data = state.item.localMsgId.toUri()
         context.sendBroadcast(intent)
         Log.d(TAG, "Broadcast intent of ${intent.action} with URI ${intent.data} from event received from ${dto.smsSendStatus.metadata.senderID}")

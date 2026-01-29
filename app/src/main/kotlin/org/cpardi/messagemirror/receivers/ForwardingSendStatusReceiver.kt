@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import org.cpardi.messagemirror.extensions.messageMapStateMachine
 import org.cpardi.messagemirror.extensions.mirrorConfig
-import org.cpardi.messagemirror.extensions.toByteArray
+import org.cpardi.messagemirror.extensions.serialise
 import org.cpardi.messagemirror.extensions.toLocalMsgId
 import org.cpardi.messagemirror.models.DeviceMode
 import org.cpardi.messagemirror.models.EventDto
@@ -17,10 +17,9 @@ abstract class ForwardingSendStatusReceiver : SendStatusReceiver() {
         val config = context.mirrorConfig
 
         if (config.mode == DeviceMode.SmsHost) {
-            val intentByteArray = intent.toByteArray().toList()
             val metadata = EventMetadataDto(config.deviceID)
             val localMsgId = intent.data?.toLocalMsgId()!!
-            val dto = EventDto.SmsSendStatus(localMsgId, metadata, intentByteArray)
+            val dto = EventDto.SmsSendStatus(localMsgId, metadata, intent.serialise())
             context.messageMapStateMachine.process(dto)
         }
 
