@@ -24,7 +24,21 @@ object CryptoHelper {
         return keyGenerator.generateKey()
     }
 
-    fun encrypt(plainText: String, key: SecretKeySpec): String {
+    fun isValidEncryptionKey(keyString: String?): Boolean {
+        if (keyString.isNullOrEmpty()) return false
+
+        return try {
+            encrypt("test", keyString)
+            true
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    fun encrypt(plainText: String, keyString: String): String {
+        val keyBytes = Base64.decode(keyString, Base64.NO_WRAP)
+        val key = SecretKeySpec(keyBytes, ALGORITHM)
+
         val compressed =
             ByteArrayOutputStream().use {
                 GZIPOutputStream(it).use { gzip -> gzip.write(plainText.toByteArray(CHARSET)) }

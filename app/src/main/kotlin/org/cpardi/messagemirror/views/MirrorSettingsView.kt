@@ -17,10 +17,10 @@ import androidx.lifecycle.LifecycleOwner
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
-import org.cpardi.messagemirror.helpers.CryptoHelper
 import org.cpardi.messagemirror.dialogs.ShareMirrorSettingsDialog
 import org.cpardi.messagemirror.extensions.mirrorConfig
 import org.cpardi.messagemirror.helpers.Constants
+import org.cpardi.messagemirror.helpers.CryptoHelper
 import org.cpardi.messagemirror.helpers.MirrorConfig
 import org.cpardi.messagemirror.models.DeviceMode
 import org.fossify.commons.compose.extensions.getActivity
@@ -56,11 +56,13 @@ class MirrorSettingsView @JvmOverloads constructor(
     }
 
     private fun onHostResume() {
-        setupEnableMirrorSwitch()
         setupDeviceMode()
         setupTopic()
         setupGenerateTopic()
         setupCopyTopic()
+        setupCustomServerToggle()
+        setupCopyCustomServer()
+        setupCustomServer()
         setupEncryptionKey()
         setupGenerateKey()
         setupCopyKey()
@@ -73,6 +75,7 @@ class MirrorSettingsView @JvmOverloads constructor(
         arrayOf(
             binding.mirrorSettingsGenerateTopicButton,
             binding.mirrorSettingsCopyTopicButton,
+            binding.mirrorSettingsCopyCustomServerButton,
             binding.mirrorSettingsGenerateKeyButton,
             binding.mirrorSettingsCopyKeyButton,
         ).forEach {
@@ -84,43 +87,41 @@ class MirrorSettingsView @JvmOverloads constructor(
         }
     }
 
-    private fun setupEnableMirrorSwitch() = binding.apply {
-        val enabled = config.enabled
-        mirrorSettingsEnable.isChecked = enabled
-        setSettingsEnabled(enabled)
-
-        mirrorSettingsEnableHolder.setOnClickListener {
-            mirrorSettingsEnable.toggle()
-            val isChecked = mirrorSettingsEnable.isChecked
-            setSettingsEnabled(isChecked)
-            config.enabled = isChecked
-        }
-    }
-
     private fun setupDeviceMode() = binding.apply {
         val currentMode = config.mode
-        mirrorSettingsMode.text = currentMode.description()
+        mirrorSettingsMode.text = currentMode.description(context)
+        setSettingsEnabled(currentMode)
 
         mirrorSettingsModeHolder.setOnClickListener {
-            val items = DeviceMode.entries.map { id -> RadioItem(id.value, id.description()) }.toArrayList()
+            val items = DeviceMode.entries.map { id -> RadioItem(id.value, id.description(context)) }.toArrayList()
             val currentMode = config.mode
             RadioGroupDialog(context.getActivity(), items, currentMode.value) { selected ->
                 val mode = DeviceMode.fromInt(selected as Int)
-                mirrorSettingsMode.text = mode.description()
+                mirrorSettingsMode.text = mode.description(context)
+                setSettingsEnabled(mode)
                 config.mode = mode
             }
         }
     }
 
     private fun setupTopic() = binding.apply {
-        mirrorSettingsTopicEdittext.setText(config.topicUrl.toString())
+        mirrorSettingsTopicEdittext.setText(config.topic)
 
         mirrorSettingsTopicEdittext.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { // This is intentionally empty
             }
+
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                config.topicUrl = URI(s?.toString() ?: "")
+                val topic = s?.toString() ?: ""
+                if (!("\\w+".toRegex().matches(topic))) {
+                    mirrorSettingsTopicEdittext.error = "Please specify a valid topic name."
+                    return
+                }
+
+                mirrorSettingsTopicEdittext.error = null
+                config.topic = topic
             }
+
             override fun afterTextChanged(s: Editable?) { // This is intentionally empty
             }
         })
@@ -143,15 +144,71 @@ class MirrorSettingsView @JvmOverloads constructor(
         }
     }
 
+    private fun setupCustomServerToggle() = binding.apply {
+        val useCustomServer = context.mirrorConfig.baseUrl != URI(Constants.URL_NTFY_DEFAULT)
+        mirrorSettingsUseCustomServerCheckbox.isChecked = useCustomServer
+        mirrorSettingsCustomServerHolder.isVisible = useCustomServer
+        if (!useCustomServer)
+            mirrorSettingsCustomServerEdittext.setText(null)
+
+        mirrorSettingsUseCustomServerCheckbox.setOnCheckedChangeListener { _, isChecked ->
+            mirrorSettingsCustomServerHolder.isVisible = isChecked
+            if (!isChecked)
+                mirrorSettingsCustomServerEdittext.setText(null)
+        }
+    }
+
+    private fun setupCopyCustomServer() = binding.apply {
+        mirrorSettingsCopyCustomServerButton.setOnClickListener {
+            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val textToCopy = mirrorSettingsCustomServerEdittext.text.toString()
+            val clip = ClipData.newPlainText("Custom Server", textToCopy)
+            clipboard.setPrimaryClip(clip)
+            Toast.makeText(context, "Custom server copied to clipboard", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun setupCustomServer() = binding.apply {
+        mirrorSettingsCustomServerEdittext.setText(config.baseUrl.toString())
+
+        mirrorSettingsCustomServerEdittext.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { // This is intentionally empty
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                try {
+                    val baseUrlString = s?.toString()
+                    if (baseUrlString.isNullOrEmpty()) error("URL is empty")
+                    config.baseUrl = URI(baseUrlString)
+                    mirrorSettingsCustomServerEdittext.error = null
+                } catch (_: Exception) {
+                    mirrorSettingsCustomServerEdittext.error = "Please specify a valid http(s) URL."
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) { // This is intentionally empty
+            }
+        })
+    }
+
     private fun setupEncryptionKey() = binding.apply {
         mirrorSettingsKeyEdittext.setText(config.encryptionKey)
 
         mirrorSettingsKeyEdittext.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { // This is intentionally empty
             }
+
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                config.encryptionKey = s?.toString() ?: ""
+                val keyString = s?.toString()
+                if (!CryptoHelper.isValidEncryptionKey(keyString)) {
+                    mirrorSettingsKeyEdittext.error = "Please specify a valid encryption key."
+                    return
+                }
+
+                mirrorSettingsKeyEdittext.error = null
+                config.encryptionKey = keyString!!
             }
+
             override fun afterTextChanged(s: Editable?) { // This is intentionally empty
             }
         })
@@ -177,7 +234,7 @@ class MirrorSettingsView @JvmOverloads constructor(
 
     private fun setupShare() = binding.apply {
         mirrorSettingsShareHolder.setOnClickListener {
-            ShareMirrorSettingsDialog(context, "${config.topicUrl};${config.encryptionKey}")
+            ShareMirrorSettingsDialog(context, "${config.topic};${config.encryptionKey};${config.baseUrl}")
         }
     }
 
@@ -202,7 +259,7 @@ class MirrorSettingsView @JvmOverloads constructor(
             return
 
         val topicAndKey = contents.split(';')
-        if (topicAndKey.size != 2) {
+        if (topicAndKey.size != NUM_QRCODE_FIELDS) {
             Toast.makeText(
                 context,
                 "Invalid QR code format. Please scan a valid mirror settings QR code.",
@@ -213,10 +270,12 @@ class MirrorSettingsView @JvmOverloads constructor(
 
         binding.mirrorSettingsTopicEdittext.setText(topicAndKey[0])
         binding.mirrorSettingsKeyEdittext.setText(topicAndKey[1])
+        binding.mirrorSettingsUseCustomServerCheckbox.isChecked = topicAndKey[2] != Constants.URL_NTFY_DEFAULT
+        binding.mirrorSettingsCustomServerEdittext.setText(topicAndKey[2])
     }
 
-    private fun setSettingsEnabled(isEnabled: Boolean) = binding.apply {
-        mirrorSettingsEnable.isChecked = isEnabled
+    private fun setSettingsEnabled(deviceMode: DeviceMode) = binding.apply {
+        val isEnabled = deviceMode != DeviceMode.None
         mirrorSettingsControlsHolder.isEnabled = isEnabled
         mirrorSettingsControlsHolder.isVisible = isEnabled
         mirrorSettingsNtfyWarning.isVisible = !context.isPackageInstalled(Constants.PACKAGE_NTFY)
@@ -228,5 +287,9 @@ class MirrorSettingsView @JvmOverloads constructor(
         return (1..length)
             .map { charset[secureRandom.nextInt(charset.size)] }
             .joinToString("")
+    }
+
+    companion object {
+        const val  NUM_QRCODE_FIELDS: Int = 3
     }
 }

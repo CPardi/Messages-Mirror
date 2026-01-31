@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Base64
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
@@ -23,6 +24,7 @@ import org.cpardi.messagemirror.extensions.messageMapStateMachine
 import org.cpardi.messagemirror.extensions.mirrorConfig
 import org.cpardi.messagemirror.helpers.Constants
 import org.cpardi.messagemirror.helpers.CryptoHelper
+import org.cpardi.messagemirror.models.DeviceMode
 import org.cpardi.messagemirror.models.EventDto
 import org.cpardi.messagemirror.stateMachines.handlers.OnSmsSendMirroredInMultipleStates
 import org.fossify.commons.extensions.showErrorToast
@@ -57,13 +59,12 @@ class EventConsumerService : Service() {
                     val config = context.mirrorConfig
                     val stateMachine = context.messageMapStateMachine
 
-                    val topicUrl = config.topicUrl
-                    val baseUrl = intent.getStringExtra(Constants.INTENT_NTFY_BASE_URL)
+                    val baseUrl = URI(intent.getStringExtra(Constants.INTENT_NTFY_BASE_URL))
                     val topic = intent.getStringExtra(Constants.INTENT_NTFY_TOPIC)
-                    val subscribedTopicUrl = URI("$baseUrl/$topic")
 
-                    if (!config.enabled || topicUrl != subscribedTopicUrl) {
-                        Log.d(TAG, "Subscribed to topic URL ${subscribedTopicUrl}, but received $topicUrl")
+                    if (config.mode == DeviceMode.None) return@launch
+                    if (config.baseUrl != baseUrl || config.topic != topic) {
+                        Log.d(TAG, "Subscribed to topic URL ${config.baseUrl}/${config.topic} , but received $baseUrl/$topic")
                         return@launch
                     }
 
@@ -80,7 +81,7 @@ class EventConsumerService : Service() {
                             is IllegalArgumentException,
                             is IllegalBlockSizeException,
                             is BadPaddingException -> {
-                                context.showErrorToast(e)
+                                context.showErrorToast("A mirrored event could not be decrypted. Exception $e ", Toast.LENGTH_LONG)
                                 return@launch
                             }
 
@@ -131,7 +132,7 @@ class EventConsumerService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return START_STICKY;
+        return START_STICKY
     }
 
     override fun onDestroy() {
