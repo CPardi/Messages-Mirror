@@ -15,7 +15,9 @@ object Constants {
 
     const val CONFIG_MODE = "mode"
     const val CONFIG_DEVICE_ID = "device_id"
-    const val CONFIG_ENABLE = "mirror_enabled"
     const val CONFIG_TOPIC = "topic_name"
+    const val CONFIG_BASE_URL = "base_url"
     const val CONFIG_ENCRYPTION_KEY = "encryption_key"
+
+    const val URL_NTFY_DEFAULT = "https://ntfy.sh"
 }

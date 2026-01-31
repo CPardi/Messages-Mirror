@@ -134,9 +134,9 @@ class SmsSender(val app: Application): ISmsSender {
 
             if (mode != instance?.forMode) {
                 instance = when(mode) {
+                    DeviceMode.None -> SmsSender(app)
                     DeviceMode.SmsHost -> LoggingSmsSender(SmsSender(app))
                     DeviceMode.Mirror -> NullSmsSender()
-                    else -> throw NoWhenBranchMatchedException("Device mode case isn't implemented")
                 }
             }
             return instance!!

@@ -142,17 +142,27 @@
     <!-- Messages Mirror -->
     <string name="mirror">Mirror</string>
     <string name="enable_mirror">Enable Mirror</string>
-    <string name="ntfy_warning">Warning: ntfy.sh app is not installed. Please install it from the Play Store.</string>
+    <string name="ntfy_warning">Warning: ntfy.sh app is not installed. Please install it use the mirror.</string>
+    <string name="topic_reminder">Remember to subscribe to this topic in ntfy.sh.</string>
     <string name="device_mode">Device Mode</string>
+    <string name="device_mode_none">None</string>
+    <string name="device_mode_sms_host">SMS Host</string>
+    <string name="device_mode_mirror">Mirror</string>
     <string name="topic_url">Topic URL</string>
-    <string name="example_topic">JCCtIRlCnhkr3Tky</string>
+    <string name="example_topic">Generate or specify topic name</string>
     <string name="generate_random_topic">Generate random topic</string>
-    <string name="copy_topic_to_clipboard">Copy topic to clipboard</string>
+    <string name="copy_to_clipboard">Copy to clipboard</string>
+    <string name="example_custom_server">Specify server base URL</string>
     <string name="encryption_key">Encryption Key</string>
-    <string name="generate_random_key">Generate random key</string>
-    <string name="copy_key_to_clipboard">Copy key to clipboard</string>
+    <string name="example_key">Generate or specify key</string>
     <string name="share_settings">Share Settings</string>
     <string name="scan_settings">Scan Settings</string>
+    <string name="add_topic_to_ntfy">ADD TOPIC TO NTFY...</string>
+    <string name="use_custom_server">Use another server</string>
+    <string name="custom_server_address">https://ntfy.sh</string>
+    <string name="share_mirror_settings">Share Mirror Settings</string>
+    <string name="share_mirror_settings_description">To sync settings, choose \'Scan Settings\' on your other device and scan this QR code.</string>
+    <string name="qr_code">QR code</string>
     <!--
         Haven't found some strings? There's more at
         https://github.com/FossifyOrg/Commons/tree/master/commons/src/main/res

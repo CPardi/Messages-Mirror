@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Log
 import org.cpardi.messagemirror.models.Keyed
 import org.cpardi.messagemirror.databases.MessageMapState
+import org.cpardi.messagemirror.extensions.isEnabled
 import org.cpardi.messagemirror.extensions.mirrorConfig
 import org.cpardi.messagemirror.extensions.mirrorEvent
 import org.cpardi.messagemirror.extensions.toGlobalMsgId
@@ -37,7 +38,10 @@ class OnSmsSendInMultipleStates(val context: Context) {
 
         Log.d(TAG, "Finish processing SMS send as requested by device ${send.metadata.senderID}")
 
-        context.mirrorEvent(EventDto.SmsSendMirrored(states.map { it.globalMsgId }, send))
+        if(context.mirrorConfig.isEnabled) {
+            context.mirrorEvent(EventDto.SmsSendMirrored(states.map { it.globalMsgId }, send))
+        }
+
         return states.toList()
     }
 }
