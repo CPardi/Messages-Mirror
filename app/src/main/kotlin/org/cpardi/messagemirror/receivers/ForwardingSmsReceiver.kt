@@ -18,6 +18,6 @@ class ForwardingSmsReceiver : BroadcastReceiver() {
         val metadata = EventMetadataDto(config.deviceID)
         val dto = EventDto.SmsReceive(metadata, intent)
 
-        context.messageMapStateMachine.process(dto)
+        context.messageMapStateMachine.processBlocking(dto)
     }
 }

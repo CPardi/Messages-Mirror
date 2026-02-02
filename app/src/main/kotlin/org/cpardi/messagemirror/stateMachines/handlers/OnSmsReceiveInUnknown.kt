@@ -15,7 +15,7 @@ class OnSmsReceiveInUnknown(val context: Context) {
         val receiver = SmsReceiver { localId ->
             val localMsgId = LocalMsgId(localId.toString())
             val partDto = EventDto.SmsPartReceive(localMsgId.toGlobalMsgId(context.mirrorConfig.deviceID), localMsgId, dto.metadata, dto.intent)
-            context.messageMapStateMachine.process(partDto)
+            context.messageMapStateMachine.processBackground(partDto)
         }
 
         receiver.onReceive(context, dto.intent)

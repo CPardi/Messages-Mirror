@@ -19,6 +19,7 @@ val Context.messageMapStateMachine: MessageMapStateMachine
 
 fun Context.mirrorEvent(dto: EventDto) {
     val config = this.mirrorConfig
+    if(!config.isEnabled) return
 
     val message = EventDto.Serializer.encodeToString(dto)
     val encryptedMessage = CryptoHelper.encrypt(message, config.encryptionKey)

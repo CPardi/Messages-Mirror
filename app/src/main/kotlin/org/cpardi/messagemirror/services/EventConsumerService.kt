@@ -90,7 +90,7 @@ class EventConsumerService : Service() {
                     }
 
                     val dto = EventDto.Serializer.decodeFromString<EventDto>(decryptedMessage)
-                    stateMachine.process(dto)
+                    stateMachine.processBlocking(dto)
                 } finally {
                     pendingResult.finish()
                 }

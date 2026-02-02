@@ -970,7 +970,7 @@ fun Context.deleteMessage(id: Long, isMMS: Boolean) {
     val config = this.mirrorConfig
     val metadata = EventMetadataDto(config.deviceID)
     val dto: EventDto = EventDto.DeleteSms(LocalMsgId(id.toString()), metadata, isMMS)
-    messageMapStateMachine.process(dto)
+    messageMapStateMachine.processBlocking(dto)
 }
 
 fun Context.deleteMessageOnDevice(id: Long, isMMS: Boolean) {

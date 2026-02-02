@@ -7,10 +7,9 @@ import android.util.Patterns
 import android.widget.Toast.LENGTH_LONG
 import com.klinker.android.send_message.Settings
 import org.cpardi.messagemirror.extensions.messageMapStateMachine
-import org.cpardi.messagemirror.extensions.mirrorConfig
+import org.cpardi.messagemirror.extensions.toLocalMsgId
 import org.cpardi.messagemirror.models.EventDto
-import org.cpardi.messagemirror.models.EventMetadataDto
-import org.cpardi.messagemirror.models.toDto
+import org.cpardi.messagemirror.models.LocalMsgId
 import org.fossify.commons.extensions.showErrorToast
 import org.fossify.commons.extensions.toast
 import org.fossify.commons.helpers.ensureBackgroundThread
@@ -48,11 +47,16 @@ fun Context.sendMessageCompat(
     attachments: List<Attachment>,
     messageId: Long? = null
 ) {
-    val config = this.mirrorConfig
-    val metadata = EventMetadataDto(config.deviceID)
-    val attachments = attachments.map { attachment -> attachment.toDto() }
-    val dto: EventDto = EventDto.SmsSend(metadata, text, addresses, subId, attachments, messageId)
-    messageMapStateMachine.process(dto)
+    val localMsgIds = mutableListOf<LocalMsgId>()
+    val handleCreatedUri: (Uri) -> Unit = { uri ->
+        val localMsgId = uri.toLocalMsgId()
+        localMsgIds.add(localMsgId)
+    }
+
+    sendMessageOnDeviceCompat(text, addresses, subId, attachments, handleCreatedUri, messageId)
+
+    val dto: EventDto = EventDto.SmsSend(localMsgIds, text, addresses, subId, attachments, messageId)
+    messageMapStateMachine.processBlocking(dto)
 }
 
 /** Sends the message using the in-app SmsManager API wrappers if it's an SMS or using android-smsmms for MMS. */

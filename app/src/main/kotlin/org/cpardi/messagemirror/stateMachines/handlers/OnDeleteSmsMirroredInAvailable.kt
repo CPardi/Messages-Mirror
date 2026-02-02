@@ -8,6 +8,8 @@ import org.cpardi.messagemirror.extensions.toLong
 import org.cpardi.messagemirror.models.EventDto
 import org.cpardi.messagemirror.models.Keyed
 import org.fossify.messages.extensions.deleteMessageOnDevice
+import org.fossify.messages.helpers.refreshConversations
+import org.fossify.messages.helpers.refreshMessages
 
 private val TAG = OnDeleteSmsMirroredInAvailable::class.qualifiedName!!
 
@@ -19,6 +21,8 @@ class OnDeleteSmsMirroredInAvailable(val context: Context) {
         }
 
         context.deleteMessageOnDevice(state.localMsgId.toLong(), dto.isMms)
+        refreshMessages()
+        refreshConversations()
         return Keyed(dto.globalMsgId, MessageMapState.Deleted(state.rowId))
     }
 }
