@@ -17,13 +17,15 @@ fun MessageMapState.toEntity(globalMsgId: GlobalMsgId): MessageMapStateEntity = 
     is MessageMapState.Partial -> MessageMapStateEntity(
         stateType = StateType.Partial,
         globalMsgId = globalMsgId,
-        smsSendStatusJson = Json.encodeToString(smsSendStatus)
+        smsSendStatusJson = Json.encodeToString(smsSendStatus),
+        rowId = this.rowId ?: 0
     )
 
     is MessageMapState.Available -> MessageMapStateEntity(
         stateType = StateType.Available,
         globalMsgId = globalMsgId,
-        localMsgId = localMsgId
+        localMsgId = localMsgId,
+        rowId = this.rowId ?: 0
     )
 
     is MessageMapState.Deleted -> MessageMapStateEntity(
@@ -42,13 +44,15 @@ fun MessageMapState.toEntity(localMsgId: LocalMsgId): MessageMapStateEntity = wh
     is MessageMapState.Partial -> MessageMapStateEntity(
         stateType = StateType.Partial,
         localMsgId = localMsgId,
-        smsSendStatusJson = Json.encodeToString(smsSendStatus)
+        smsSendStatusJson = Json.encodeToString(smsSendStatus),
+        rowId = this.rowId ?: 0
     )
 
     is MessageMapState.Available -> MessageMapStateEntity(
         stateType = StateType.Available,
         localMsgId = localMsgId,
         globalMsgId = this.globalMsgId,
+        rowId = this.rowId ?: 0
     )
 
     is MessageMapState.Deleted -> MessageMapStateEntity(
@@ -65,7 +69,7 @@ fun MessageMapStateEntity?.toState(): MessageMapState =
         when (stateType) {
             StateType.Partial -> {
                 val status = smsSendStatusJson?.let { Json.decodeFromString<EventDto.SmsSendStatus>(it) }
-                if (status != null) MessageMapState.Partial(status)
+                if (status != null) MessageMapState.Partial(status, rowId)
                 else error("Invalid Partial state JSON")
             }
 

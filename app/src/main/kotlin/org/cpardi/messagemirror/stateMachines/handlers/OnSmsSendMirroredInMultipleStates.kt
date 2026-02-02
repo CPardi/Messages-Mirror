@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import org.cpardi.messagemirror.databases.MessageMapState
-import org.cpardi.messagemirror.extensions.messageMapStateMachine
 import org.cpardi.messagemirror.extensions.mirrorConfig
 import org.cpardi.messagemirror.extensions.toLocalMsgId
 import org.cpardi.messagemirror.models.EventDto
@@ -17,28 +16,27 @@ private val TAG: String = OnSmsSendMirroredInMultipleStates::class.qualifiedName
 
 class OnSmsSendMirroredInMultipleStates(val context: Context) {
     fun handle(keyedStates: List<Keyed<MessageMapState>>, sendMirrored: EventDto.SmsSendMirrored): List<Keyed<MessageMapState.Available>>? {
-        if (context.mirrorConfig.deviceID == sendMirrored.smsSend.metadata.senderID) {
+        if (context.mirrorConfig.deviceID == sendMirrored.metadata.senderID) {
             Log.d(TAG, "Ignored ${sendMirrored::class.simpleName} as sent from this device(${context.mirrorConfig.deviceID})")
             return null
         }
 
-        Log.d(TAG, "Begin processing SMS send as requested by device ${sendMirrored.smsSend.metadata.senderID}")
+        Log.d(TAG, "Begin processing SMS send as requested by device ${sendMirrored.metadata.senderID}")
         val localMsgIds = mutableListOf<LocalMsgId>()
         val handleCreatedUri: (Uri) -> Unit = { uri ->
             localMsgIds.add(uri.toLocalMsgId())
         }
 
-
         context.sendMessageOnDeviceCompat(
-            sendMirrored.smsSend.text,
-            sendMirrored.smsSend.addresses,
+            sendMirrored.text,
+            sendMirrored.addresses,
             null, // Use the default subscription (SIM card) for the time being
-            sendMirrored.smsSend.attachments.map { attachmentDto -> attachmentDto.fromDto() },
+            sendMirrored.attachments.map { attachmentDto -> attachmentDto.fromDto() },
             handleCreatedUri,
-            sendMirrored.smsSend.messageId,
+            sendMirrored.messageId,
         )
 
-        Log.d(TAG, "Finish processing SMS send as requested by device ${sendMirrored.smsSend.metadata.senderID}")
+        Log.d(TAG, "Finish processing SMS send as requested by device ${sendMirrored.metadata.senderID}")
 
         val globalToLocalMap = sendMirrored.globalMsgIds.mapIndexed { index, globalMsgId -> Pair(globalMsgId, localMsgIds[index]) }.toMap()
         return keyedStates.map { keyed ->
@@ -53,7 +51,6 @@ class OnSmsSendMirroredInMultipleStates(val context: Context) {
                 is MessageMapState.Partial -> {
                     val available = MessageMapState.Available(globalMsgId, localMsgId, state.rowId)
                     OnSmsSendStatusInAvailable(context).handle(Keyed(globalMsgId, available), state.smsSendStatus)
-                    context.messageMapStateMachine.process(EventDto.SmsSendStatusMirrored(globalMsgId, state.smsSendStatus))
                     Log.d(TAG, "Processed status ${state.smsSendStatus.localMsgId} that was in Partial state")
                     Keyed(globalMsgId, available)
                 }

@@ -20,7 +20,7 @@ abstract class ForwardingSendStatusReceiver : SendStatusReceiver() {
             val metadata = EventMetadataDto(config.deviceID)
             val localMsgId = intent.data?.toLocalMsgId()!!
             val dto = EventDto.SmsSendStatus(localMsgId, metadata, intent.serialise())
-            context.messageMapStateMachine.process(dto)
+            context.messageMapStateMachine.processBlocking(dto)
         }
 
         super.onReceive(context, intent)

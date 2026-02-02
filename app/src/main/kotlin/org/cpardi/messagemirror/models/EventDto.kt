@@ -6,17 +6,18 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
+import org.fossify.messages.models.Attachment
 
 /** Polymorphic class representing the various events occurring on either the SMS host or Mirror. */
 @Serializable
 sealed class EventDto {
-    /** Represents when an SMS message is received */
+    /** Represents when an SMS message is received by a host device */
     data class SmsReceive(
         val metadata: EventMetadataDto,
         val intent: Intent
     ) : EventDto()
 
-    /** Represents when an SMS message is received */
+    /** Represents when an SMS has been assigned a local msg id by the host device */
     data class SmsPartReceive(
         val globalMsgId: GlobalMsgId,
         val localMsgId: LocalMsgId,
@@ -24,6 +25,7 @@ sealed class EventDto {
         val intent: Intent
     ) : EventDto()
 
+    /** Represents when an SMS that has been received is ready to be mirrored */
     @Serializable
     data class SmsReceiveMirrored(
         val metadata: EventMetadataDto,
@@ -31,9 +33,20 @@ sealed class EventDto {
         val intentData: String
     ) : EventDto()
 
-    /** Represents when an SMS message is sent */
-    @Serializable
+    /** Represents when an SMS message is sent from a host device */
     data class SmsSend(
+        val localMsgId: List<LocalMsgId>,
+        val text: String,
+        val addresses: List<String>,
+        val subId: Int?,
+        val attachments: List<Attachment>,
+        val messageId: Long?
+    ) : EventDto()
+
+    /** Represents when an SMS that has been sent is ready to be mirrored */
+    @Serializable
+    data class SmsSendMirrored(
+        val globalMsgIds: List<GlobalMsgId>,
         val metadata: EventMetadataDto,
         val text: String,
         val addresses: List<String>,
@@ -42,32 +55,29 @@ sealed class EventDto {
         val messageId: Long?
     ) : EventDto()
 
-    @Serializable
-    data class SmsSendMirrored(
-        val globalMsgIds: List<GlobalMsgId>,
-        val smsSend: SmsSend
-    ) : EventDto()
-
-    /** Represents when an SMS message status is updated */
+    /** Represents when an SMS message status is updated on a host device */
     @Serializable
     data class SmsSendStatus(
         val localMsgId: LocalMsgId,
         val metadata: EventMetadataDto,
-        val intentData: String
+        val intentData: String,
     ) : EventDto()
 
+    /** Represents when an SMS status is ready to be mirrored */
     @Serializable
     data class SmsSendStatusMirrored(
         val globalMsgId: GlobalMsgId,
         val smsSendStatus: SmsSendStatus
     ) : EventDto()
 
+    /** Represents when an SMS message has been deleted on a host device */
     data class DeleteSms(
         val localMsgId: LocalMsgId,
         val metadata: EventMetadataDto,
         val isMms: Boolean
     ) : EventDto()
 
+    /** Represents when an SMS deletion is ready to be mirrored */
     @Serializable
     data class DeleteSmsMirrored(
         val globalMsgId: GlobalMsgId,

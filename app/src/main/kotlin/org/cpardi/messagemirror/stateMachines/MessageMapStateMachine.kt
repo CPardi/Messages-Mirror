@@ -12,7 +12,6 @@ import org.cpardi.messagemirror.databases.MessageMapStateEntity
 import org.cpardi.messagemirror.databases.MirrorDatabase
 import org.cpardi.messagemirror.extensions.toEntity
 import org.cpardi.messagemirror.extensions.toState
-import org.cpardi.messagemirror.stateMachines.handlers.OnAnyEventPost
 import org.cpardi.messagemirror.stateMachines.handlers.OnSmsPartReceiveInUnknown
 import org.cpardi.messagemirror.stateMachines.handlers.OnSmsReceiveInUnknown
 import org.cpardi.messagemirror.stateMachines.handlers.OnSmsReceiveMirroredInUnknown
@@ -32,6 +31,9 @@ import org.cpardi.messagemirror.stateMachines.handlers.OnDeleteSmsInAvailable
 import org.cpardi.messagemirror.stateMachines.handlers.OnDeleteSmsInUnknown
 import org.cpardi.messagemirror.stateMachines.handlers.OnDeleteSmsMirroredInAvailable
 import org.cpardi.messagemirror.stateMachines.handlers.OnDeleteSmsMirroredInUnknown
+import org.cpardi.messagemirror.stateMachines.handlers.OnSmsSendStatusInPartial
+import org.cpardi.messagemirror.stateMachines.handlers.OnSmsSendStatusMirroredInPartial
+import org.fossify.commons.helpers.ensureBackgroundThread
 import java.util.concurrent.Executors
 
 private val TAG: String = MessageMapStateMachine::class.qualifiedName!!
@@ -55,9 +57,11 @@ class MessageMapStateMachine(val context: Context) {
     private val onSmsSendMirroredInMultipleStates = OnSmsSendMirroredInMultipleStates(context)
 
     private val onSmsSendStatusInUnknown = OnSmsSendStatusInUnknown(context)
+    private val onSmsSendStatusInPartial = OnSmsSendStatusInPartial(context)
     private val onSmsSendStatusInAvailable = OnSmsSendStatusInAvailable(context)
 
     private val onSmsSendStatusMirroredInUnknown = OnSmsSendStatusMirroredInUnknown(context)
+    private val onSmsSendStatusMirroredInPartial = OnSmsSendStatusMirroredInPartial(context)
     private val onSmsSendStatusMirroredInAvailable = OnSmsSendStatusMirroredInAvailable(context)
 
     private val onDeleteSmsInUnknown = OnDeleteSmsInUnknown(context)
@@ -66,9 +70,15 @@ class MessageMapStateMachine(val context: Context) {
     private val onDeleteSmsMirroredInUnknown = OnDeleteSmsMirroredInUnknown(context)
     private val onDeleteSmsMirroredInAvailable = OnDeleteSmsMirroredInAvailable(context)
 
-    private val onAnyEventPost = OnAnyEventPost(context)
+    fun processBackground(dto: EventDto) = ensureBackgroundThread {
+        processBlocking(dto)
+    }
 
-    fun process(dto: EventDto) = runBlocking(singleThreadDispatcher) {
+    fun processBlocking(dto: EventDto) = runBlocking(singleThreadDispatcher) {
+        processInternal(dto)
+    }
+
+    private fun processInternal(dto: EventDto) {
         Log.d(TAG, "State machine started processing ${dto::class.simpleName} event")
         when (dto) {
             is EventDto.SmsReceive -> onSmsReceive(dto)
@@ -85,7 +95,6 @@ class MessageMapStateMachine(val context: Context) {
             is EventDto.DeleteSmsMirrored -> onDeleteSmsMirrored(dto)
         }
 
-        onAnyEventPost.handle(dto)
         Log.d(TAG, "State machine finished processing ${dto::class.simpleName} event")
     }
 
@@ -114,7 +123,7 @@ class MessageMapStateMachine(val context: Context) {
         val state = getCurrentState(status.localMsgId)
         when (state) {
             is MessageMapState.Unknown -> updateState(onSmsSendStatusInUnknown.handle(status))
-            is MessageMapState.Partial -> state.disallowed(status)
+            is MessageMapState.Partial -> updateState(onSmsSendStatusInPartial.handle(status))
             is MessageMapState.Available -> updateState(onSmsSendStatusInAvailable.handle(Keyed(state.globalMsgId, state), status))
             is MessageMapState.Deleted -> state.disallowed(status)
         }
@@ -124,7 +133,7 @@ class MessageMapStateMachine(val context: Context) {
         val keyedState = Keyed(status.globalMsgId, getCurrentState(status.globalMsgId))
         when (val state = keyedState.item) {
             is MessageMapState.Unknown -> onSmsSendStatusMirroredInUnknown.handle(status)
-            is MessageMapState.Partial -> state.disallowed(status)
+            is MessageMapState.Partial -> onSmsSendStatusMirroredInPartial.handle(state, status)
             is MessageMapState.Available -> onSmsSendStatusMirroredInAvailable.handle(Keyed(keyedState.globalMsgId, state), status)
             is MessageMapState.Deleted -> state.disallowed(status)
         }.let { updateState(it) }
@@ -179,7 +188,7 @@ class MessageMapStateMachine(val context: Context) {
         when (entity.stateType) {
             StateType.Deleted -> dao.deleteById(entity.rowId)
             StateType.Unknown -> {} // Do nothing for Unknown state
-            else -> dao.upsert(entity)
+            else ->if(entity.rowId == 0L) dao.insert(entity) else dao.update(entity)
         }
 
         Log.d(TAG, "State machine $id, transition to $stateName")
