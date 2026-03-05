@@ -22,7 +22,7 @@ class OnSmsReceiveMirroredInUnknown(val context: Context) {
 
         val intent = dto.intentData.toIntent()
         val receiver = SmsReceiver { localId ->
-            val localMsgId = LocalMsgId(localId.toString())
+            val localMsgId = LocalMsgId(localId, isMMS = false)
             val partDto = EventDto.SmsPartReceive(dto.globalMsgId, localMsgId, dto.metadata, intent)
             context.messageMapStateMachine.processBackground(partDto)
         }

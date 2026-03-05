@@ -969,7 +969,7 @@ fun Context.updateConversationArchivedStatus(threadId: Long, archived: Boolean) 
 fun Context.deleteMessage(id: Long, isMMS: Boolean) {
     val config = this.mirrorConfig
     val metadata = EventMetadataDto(config.deviceID)
-    val dto: EventDto = EventDto.DeleteSms(LocalMsgId(id.toString()), metadata, isMMS)
+    val dto: EventDto = EventDto.DeleteSms(LocalMsgId(id, isMMS), metadata)
     messageMapStateMachine.processBlocking(dto)
 }
 

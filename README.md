@@ -64,13 +64,14 @@ While the Messages Mirror app provides core functionality for SMS mirroring, som
 
 ### Unavailable Operations and Receivers
 
-| Operation                                           | Status          | Notes                                         |
-|-----------------------------------------------------|-----------------|-----------------------------------------------|
-| MMS Receiving (`MmsReceiver`)                       | Not implemented | MMS messages are not yet mirrored.            |
-| Scheduled Messages (`ScheduledMessageReceiver`)     | Not implemented | Scheduled message sending is not mirrored.    |
-| Message Deletion (`DeleteSmsReceiver`)              | Not implemented | Message deletions are not mirrored.           |
-| Direct Reply (`DirectReplyReceiver`)                | Not implemented | Inline reply handling is not mirrored.        |
-| Mark as Read (`MarkAsReadReceiver`)                 | Not implemented | Read status updates are not mirrored.         |
+| Operation                         | Host                                                                          | Mirror                                                                        |
+|-----------------------------------|-------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| Send SMS on Host                  | SMS sent on device                                                            | SMS body displayed up to 1600 characters and text description of attachments. |
+| Send SMS on Mirror                | SMS sent and displayed on device                                              | Error if body over 1600 characters or contains attachments                    |
+| Receive SMS on Host               | SMS displayed on device                                                       | SMS body displayed up to 1600 characters and text description of attachments. |
+| Receive SMS on Mirror             | SMS body displayed up to 1600 characters and attachments as text description. | SMS displayed on device                                                       |
+| SMS Status updated on Host\Mirror | SMS status shown on device                                                    | SMS status shown on device                                                    |
+| Delete SMS on Host\Mirror         | SMS deleted                                                                   | SMS deleted                                                                   |
 
 ## Troubleshooting
 

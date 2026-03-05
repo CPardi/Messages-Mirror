@@ -6,14 +6,14 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Telephony.Sms
-import org.cpardi.messagemirror.receivers.ForwardingSendStatusReceiver
+import org.cpardi.messagemirror.receivers.ForwardingSmsSendStatusReceiver
 import org.fossify.commons.helpers.ensureBackgroundThread
 import org.fossify.messages.extensions.messagesDB
 import org.fossify.messages.extensions.messagingUtils
 import org.fossify.messages.helpers.refreshMessages
 
 /** Handles updating databases and states when a sent SMS message is delivered. */
-class SmsStatusDeliveredReceiver : ForwardingSendStatusReceiver() {
+class SmsStatusDeliveredReceiver : ForwardingSmsSendStatusReceiver() {
 
     private var status: Int = Sms.Sent.STATUS_NONE
 

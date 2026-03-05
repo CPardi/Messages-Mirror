@@ -13,7 +13,7 @@ import org.fossify.messages.receivers.SmsReceiver
 class OnSmsReceiveInUnknown(val context: Context) {
     fun handle(dto: EventDto.SmsReceive): List<Keyed<MessageMapState>>? {
         val receiver = SmsReceiver { localId ->
-            val localMsgId = LocalMsgId(localId.toString())
+            val localMsgId = LocalMsgId(localId, isMMS = false)
             val partDto = EventDto.SmsPartReceive(localMsgId.toGlobalMsgId(context.mirrorConfig.deviceID), localMsgId, dto.metadata, dto.intent)
             context.messageMapStateMachine.processBackground(partDto)
         }

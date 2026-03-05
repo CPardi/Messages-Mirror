@@ -7,6 +7,6 @@ import org.cpardi.messagemirror.models.LKeyed
 
 class OnSmsSendStatusInUnknown(val context: Context) {
     fun handle(dto: EventDto.SmsSendStatus): LKeyed<MessageMapState> {
-        return LKeyed(dto.localMsgId, MessageMapState.Partial(dto))
+        return LKeyed(dto.updatedLocalMsgId ?: dto.localMsgId, MessageMapState.Partial(dto))
     }
 }

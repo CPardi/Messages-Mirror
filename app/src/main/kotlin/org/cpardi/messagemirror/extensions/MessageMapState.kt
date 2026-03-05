@@ -35,15 +35,17 @@ fun MessageMapState.toEntity(globalMsgId: GlobalMsgId): MessageMapStateEntity = 
     )
 }
 
-fun MessageMapState.toEntity(localMsgId: LocalMsgId): MessageMapStateEntity = when (this) {
+fun MessageMapState.toEntity(localMsgId: LocalMsgId, globalMsgId: GlobalMsgId? = null): MessageMapStateEntity = when (this) {
     is MessageMapState.Unknown -> MessageMapStateEntity(
         stateType = StateType.Unknown,
         localMsgId = localMsgId,
+        globalMsgId = globalMsgId
     )
 
     is MessageMapState.Partial -> MessageMapStateEntity(
         stateType = StateType.Partial,
         localMsgId = localMsgId,
+        globalMsgId = globalMsgId,
         smsSendStatusJson = Json.encodeToString(smsSendStatus),
         rowId = this.rowId ?: 0
     )
@@ -51,13 +53,14 @@ fun MessageMapState.toEntity(localMsgId: LocalMsgId): MessageMapStateEntity = wh
     is MessageMapState.Available -> MessageMapStateEntity(
         stateType = StateType.Available,
         localMsgId = localMsgId,
-        globalMsgId = this.globalMsgId,
+        globalMsgId = globalMsgId ?: this.globalMsgId,
         rowId = this.rowId ?: 0
     )
 
     is MessageMapState.Deleted -> MessageMapStateEntity(
         stateType = StateType.Deleted,
         localMsgId = localMsgId,
+        globalMsgId = globalMsgId,
         rowId = rowId ?: error("rowId field must always be set in the Deleted state")
     )
 }

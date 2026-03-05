@@ -16,6 +16,6 @@ class OnSmsSendStatusMirroredInUnknown(val context: Context) {
             return null
         }
 
-        return Keyed(dto.globalMsgId, MessageMapState.Partial(dto.smsSendStatus))
+        return Keyed(dto.updatedGlobalMsgId ?: dto.globalMsgId, MessageMapState.Partial(dto.smsSendStatus))
     }
 }

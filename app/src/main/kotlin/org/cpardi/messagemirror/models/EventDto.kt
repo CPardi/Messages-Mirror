@@ -35,7 +35,7 @@ sealed class EventDto {
 
     /** Represents when an SMS message is sent from a host device */
     data class SmsSend(
-        val localMsgId: List<LocalMsgId>,
+        val localMsgId: LocalMsgId,
         val text: String,
         val addresses: List<String>,
         val subId: Int?,
@@ -46,7 +46,7 @@ sealed class EventDto {
     /** Represents when an SMS that has been sent is ready to be mirrored */
     @Serializable
     data class SmsSendMirrored(
-        val globalMsgIds: List<GlobalMsgId>,
+        val globalMsgId: GlobalMsgId,
         val metadata: EventMetadataDto,
         val text: String,
         val addresses: List<String>,
@@ -59,22 +59,29 @@ sealed class EventDto {
     @Serializable
     data class SmsSendStatus(
         val localMsgId: LocalMsgId,
+        val updatedLocalMsgId: LocalMsgId?,
         val metadata: EventMetadataDto,
         val intentData: String,
+    ) : EventDto()
+
+    /** Represents when an local message ID is updated (this is done for MMS) */
+    data class LocalMsgIdUpdated(
+        val localMsgId: LocalMsgId,
+        val updatedLocalMsgId: LocalMsgId
     ) : EventDto()
 
     /** Represents when an SMS status is ready to be mirrored */
     @Serializable
     data class SmsSendStatusMirrored(
         val globalMsgId: GlobalMsgId,
+        val updatedGlobalMsgId: GlobalMsgId?,
         val smsSendStatus: SmsSendStatus
     ) : EventDto()
 
     /** Represents when an SMS message has been deleted on a host device */
     data class DeleteSms(
         val localMsgId: LocalMsgId,
-        val metadata: EventMetadataDto,
-        val isMms: Boolean
+        val metadata: EventMetadataDto
     ) : EventDto()
 
     /** Represents when an SMS deletion is ready to be mirrored */
@@ -82,7 +89,6 @@ sealed class EventDto {
     data class DeleteSmsMirrored(
         val globalMsgId: GlobalMsgId,
         val metadata: EventMetadataDto,
-        val isMms: Boolean
     ) : EventDto()
 
 
