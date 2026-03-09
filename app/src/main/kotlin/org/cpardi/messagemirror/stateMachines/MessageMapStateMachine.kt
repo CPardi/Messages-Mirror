@@ -22,6 +22,7 @@ import org.cpardi.messagemirror.stateMachines.handlers.OnSmsSendStatusInUnknown
 import org.cpardi.messagemirror.stateMachines.handlers.OnSmsSendStatusMirroredInAvailable
 import org.cpardi.messagemirror.stateMachines.handlers.OnSmsSendStatusMirroredInUnknown
 import org.cpardi.messagemirror.models.EventDto
+import org.cpardi.messagemirror.models.GLKeyed
 import org.cpardi.messagemirror.models.GlobalMsgId
 import org.cpardi.messagemirror.models.Keyed
 import org.cpardi.messagemirror.models.LKeyed
@@ -93,6 +94,8 @@ class MessageMapStateMachine(val context: Context) {
 
             is EventDto.DeleteSms -> onDeleteSms(dto)
             is EventDto.DeleteSmsMirrored -> onDeleteSmsMirrored(dto)
+
+            is EventDto.LocalMsgIdUpdated -> onLocalMsgIdUpdated(dto)
         }
 
         Log.d(TAG, "State machine finished processing ${dto::class.simpleName} event")
@@ -111,12 +114,12 @@ class MessageMapStateMachine(val context: Context) {
     }
 
     private fun onSmsSend(send: EventDto.SmsSend) {
-        updateStates(onSmsSendInMultipleStates.handle(send))
+        updateState(onSmsSendInMultipleStates.handle(send))
     }
 
     private fun onSmsSendMirrored(sendMirrored: EventDto.SmsSendMirrored) {
-        val states = sendMirrored.globalMsgIds.map { Keyed(it, getCurrentState(it)) }
-        updateStates(onSmsSendMirroredInMultipleStates.handle(states, sendMirrored))
+        val state = Keyed(sendMirrored.globalMsgId, getCurrentState(sendMirrored.globalMsgId))
+        updateState(onSmsSendMirroredInMultipleStates.handle(state, sendMirrored))
     }
 
     private fun onSmsSendStatus(status: EventDto.SmsSendStatus) {
@@ -132,17 +135,17 @@ class MessageMapStateMachine(val context: Context) {
     private fun onSmsSendStatusMirrored(status: EventDto.SmsSendStatusMirrored) {
         val keyedState = Keyed(status.globalMsgId, getCurrentState(status.globalMsgId))
         when (val state = keyedState.item) {
-            is MessageMapState.Unknown -> onSmsSendStatusMirroredInUnknown.handle(status)
-            is MessageMapState.Partial -> onSmsSendStatusMirroredInPartial.handle(state, status)
-            is MessageMapState.Available -> onSmsSendStatusMirroredInAvailable.handle(Keyed(keyedState.globalMsgId, state), status)
+            is MessageMapState.Unknown -> updateState(onSmsSendStatusMirroredInUnknown.handle(status))
+            is MessageMapState.Partial -> updateState(onSmsSendStatusMirroredInPartial.handle(state, status))
+            is MessageMapState.Available -> updateState(onSmsSendStatusMirroredInAvailable.handle(Keyed(keyedState.globalMsgId, state), status))
             is MessageMapState.Deleted -> state.disallowed(status)
-        }.let { updateState(it) }
+        }
     }
 
     private fun onDeleteSms(delete: EventDto.DeleteSms) {
         val keyedState = LKeyed(delete.localMsgId, getCurrentState(delete.localMsgId))
         when (val state = keyedState.item) {
-            is MessageMapState.Unknown -> onDeleteSmsInUnknown.handle(delete)
+            is MessageMapState.Unknown -> updateState(onDeleteSmsInUnknown.handle(delete))
             is MessageMapState.Partial -> state.disallowed(delete)
             is MessageMapState.Available -> updateState(onDeleteSmsInAvailable.handle(state, delete))
             is MessageMapState.Deleted -> state.disallowed(delete)
@@ -152,11 +155,16 @@ class MessageMapStateMachine(val context: Context) {
     private fun onDeleteSmsMirrored(delete: EventDto.DeleteSmsMirrored) {
         val keyedState = Keyed(delete.globalMsgId, getCurrentState(delete.globalMsgId))
         when (val state = keyedState.item) {
-            is MessageMapState.Unknown -> onDeleteSmsMirroredInUnknown.handle(delete)
+            is MessageMapState.Unknown -> updateState(onDeleteSmsMirroredInUnknown.handle(delete))
             is MessageMapState.Partial -> state.disallowed(delete)
             is MessageMapState.Available -> updateState(onDeleteSmsMirroredInAvailable.handle(state, delete))
             is MessageMapState.Deleted -> state.disallowed(delete)
         }
+    }
+
+    private fun onLocalMsgIdUpdated(dto: EventDto.LocalMsgIdUpdated) {
+        val state = getCurrentState(dto.localMsgId)
+        updateState(LKeyed(dto.updatedLocalMsgId, state))
     }
 
     private fun getCurrentState(localMsgId: LocalMsgId): MessageMapState {
@@ -182,6 +190,12 @@ class MessageMapStateMachine(val context: Context) {
         if (keyedState == null) return
         val entity = keyedState.item.toEntity(keyedState.localMsgId)
         updateEntityState(entity, keyedState.localMsgId.toString(), keyedState.item::class.simpleName)
+    }
+
+    private fun updateState(keyedState: GLKeyed<MessageMapState>?) {
+        if (keyedState == null) return
+        val entity = keyedState.item.toEntity(keyedState.localMsgId, keyedState.globalMsgId)
+        updateEntityState(entity, "${keyedState.localMsgId}/${keyedState.globalMsgId}", keyedState.item::class.simpleName)
     }
 
     private fun updateEntityState(entity: MessageMapStateEntity, id: String, stateName: String?) {

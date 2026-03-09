@@ -1,7 +1,9 @@
 package org.fossify.messages.messaging
 
+import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
+import android.provider.Telephony
 import android.telephony.SmsMessage
 import android.util.Patterns
 import android.widget.Toast.LENGTH_LONG
@@ -53,9 +55,23 @@ fun Context.sendMessageCompat(
         localMsgIds.add(localMsgId)
     }
 
-    sendMessageOnDeviceCompat(text, addresses, subId, attachments, handleCreatedUri, messageId)
+    val settings = getSendMessageSettings()
+    val isMms = attachments.isNotEmpty() || isLongMmsMessage(text, settings)
+        || addresses.size > 1 && settings.group
 
-    val dto: EventDto = EventDto.SmsSend(localMsgIds, text, addresses, subId, attachments, messageId)
+    val dto: EventDto = if(isMms) {
+        // We are unable to get an MMS' Id until the status is received. Therefore, create
+        // a temp MMS to get an ID and update later
+        val uri = contentResolver.insert(Telephony.Mms.CONTENT_URI, ContentValues())!!
+        val localMsgId = uri.toLocalMsgId()
+        sendMessageOnDeviceCompat(text, addresses, subId, attachments, handleCreatedUri, localMsgId.id)
+        EventDto.SmsSend(localMsgId, text, addresses, subId, attachments, localMsgId.id)
+    }
+    else {
+        sendMessageOnDeviceCompat(text, addresses, subId, attachments, handleCreatedUri, messageId)
+        EventDto.SmsSend(localMsgIds.single(), text, addresses, subId, attachments, messageId)
+    }
+
     messageMapStateMachine.processBlocking(dto)
 }
 

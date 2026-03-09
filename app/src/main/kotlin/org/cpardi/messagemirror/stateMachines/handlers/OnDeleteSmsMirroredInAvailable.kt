@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import org.cpardi.messagemirror.databases.MessageMapState
 import org.cpardi.messagemirror.extensions.mirrorConfig
-import org.cpardi.messagemirror.extensions.toLong
 import org.cpardi.messagemirror.models.EventDto
 import org.cpardi.messagemirror.models.Keyed
 import org.fossify.messages.extensions.deleteMessageOnDevice
@@ -20,7 +19,7 @@ class OnDeleteSmsMirroredInAvailable(val context: Context) {
             return null
         }
 
-        context.deleteMessageOnDevice(state.localMsgId.toLong(), dto.isMms)
+        context.deleteMessageOnDevice(state.localMsgId.id, state.localMsgId.isMMS)
         refreshMessages()
         refreshConversations()
         return Keyed(dto.globalMsgId, MessageMapState.Deleted(state.rowId))

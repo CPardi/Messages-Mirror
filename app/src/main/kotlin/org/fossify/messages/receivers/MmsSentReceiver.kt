@@ -8,17 +8,17 @@ import android.database.sqlite.SQLiteException
 import android.net.Uri
 import android.provider.Telephony
 import android.widget.Toast
-import org.cpardi.messagemirror.receivers.ForwardingSendStatusReceiver
+import org.cpardi.messagemirror.receivers.ForwardingMmsSendStatusReceiver
 import org.fossify.commons.extensions.showErrorToast
 import org.fossify.commons.extensions.toast
 import org.fossify.messages.R
-import org.fossify.messages.extensions.deleteMessage
+import org.fossify.messages.extensions.deleteMessageOnDevice
 import org.fossify.messages.helpers.refreshConversations
 import org.fossify.messages.helpers.refreshMessages
 import java.io.File
 
 /** Handles updating databases and states when a MMS message is sent. */
-class MmsSentReceiver : ForwardingSendStatusReceiver() {
+class MmsSentReceiver : ForwardingMmsSendStatusReceiver() {
 
     override fun updateAndroidDatabase(context: Context, intent: Intent, receiverResultCode: Int) {
         val uri = Uri.parse(intent.getStringExtra(EXTRA_CONTENT_URI))
@@ -43,7 +43,7 @@ class MmsSentReceiver : ForwardingSendStatusReceiver() {
 
         // In case of resent message, delete original to prevent duplication
         if (originalResentMessageId != -1L) {
-            context.deleteMessage(originalResentMessageId, true)
+            context.deleteMessageOnDevice(originalResentMessageId, true)
         }
 
         val filePath = intent.getStringExtra(EXTRA_FILE_PATH)

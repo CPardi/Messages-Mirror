@@ -16,13 +16,8 @@ class OnSmsSendStatusMirroredInPartial(val context: Context) {
             return null
         }
 
-//        if(dto.smsSendStatus.action == SMS_SENT_ACTION) {
-//            Log.d(TAG, "Ignored ${dto::class.simpleName} as SMS Sent only happens before delivered")
-//            return null
-//        }
+        if (state.rowId == null) Log.d(TAG, "Existing ROWID is null")
 
-        if(state.rowId == null) Log.d(TAG, "Existing ROWID is null")
-
-        return Keyed(dto.globalMsgId, MessageMapState.Partial(dto.smsSendStatus, state.rowId))
+        return Keyed(dto.updatedGlobalMsgId ?: dto.globalMsgId, MessageMapState.Partial(dto.smsSendStatus, state.rowId))
     }
 }

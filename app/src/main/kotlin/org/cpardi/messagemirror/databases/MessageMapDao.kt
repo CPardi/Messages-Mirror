@@ -61,6 +61,6 @@ class LoggingMessageMapDao(val baseDao: MessageMapDao) : MessageMapDao {
 
     override fun deleteById(rowId: Long) {
         baseDao.deleteById(rowId)
-        Log.d(TAG, "Deleted message map with id $rowId")
+        Log.d(TAG, "Deleted message map with row id $rowId")
     }
 }

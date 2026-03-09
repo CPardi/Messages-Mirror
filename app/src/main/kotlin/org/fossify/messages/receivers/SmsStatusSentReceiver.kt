@@ -9,7 +9,7 @@ import android.os.Looper
 import android.provider.Telephony.Sms
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ProcessLifecycleOwner
-import org.cpardi.messagemirror.receivers.ForwardingSendStatusReceiver
+import org.cpardi.messagemirror.receivers.ForwardingSmsSendStatusReceiver
 import org.fossify.commons.extensions.getMyContactsCursor
 import org.fossify.commons.helpers.ensureBackgroundThread
 import org.fossify.messages.extensions.getMessageRecipientAddress
@@ -22,7 +22,7 @@ import org.fossify.messages.helpers.refreshConversations
 import org.fossify.messages.helpers.refreshMessages
 
 /** Handles updating databases and states when a SMS message is sent. */
-class SmsStatusSentReceiver : ForwardingSendStatusReceiver() {
+class SmsStatusSentReceiver : ForwardingSmsSendStatusReceiver() {
 
     override fun updateAndroidDatabase(context: Context, intent: Intent, receiverResultCode: Int) {
         val messageUri: Uri? = intent.data
