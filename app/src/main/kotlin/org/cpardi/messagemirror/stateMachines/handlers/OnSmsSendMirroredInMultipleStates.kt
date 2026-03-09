@@ -8,6 +8,7 @@ import android.util.Log
 import org.cpardi.messagemirror.databases.MessageMapState
 import org.cpardi.messagemirror.extensions.mirrorConfig
 import org.cpardi.messagemirror.extensions.toLocalMsgId
+import org.cpardi.messagemirror.models.DeviceMode
 import org.cpardi.messagemirror.models.EventDto
 import org.cpardi.messagemirror.models.Keyed
 import org.cpardi.messagemirror.models.LocalMsgId
@@ -49,10 +50,12 @@ class OnSmsSendMirroredInMultipleStates(val context: Context) {
             attachments.add(Attachment(id =null, messageId = -1, file.toURI().toString(), TXT_MIME_TYPE, width = 0, height = 0, attachment.filename))
         }
 
+        // Use the default subscription on host
+        // Invalid on mirror. HACK to prevent sending as can't intercept as for regular SMS
         context.sendMessageOnDeviceCompat(
             sendMirrored.text,
             sendMirrored.addresses,
-            null, // Use the default subscription (SIM card) for the time being
+            if(context.mirrorConfig.mode == DeviceMode.SmsHost) null as Int? else Integer.MIN_VALUE,
             attachments,
             handleCreatedUri,
             localMsgId?.id,
